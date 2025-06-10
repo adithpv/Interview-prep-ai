@@ -1,1 +1,106 @@
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --font-display: "Urbanist, sans-serif";
+  --breakpoint-3xl: 1920px;
+  --color-primary: #ff9324;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-display);
+    overflow-x: hidden;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.4);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@layer utilities {
+  @keyframes text-shine {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .animate-text-shine {
+    animation: text-shine 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes blob1 {
+    0%,
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(30px, -60px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+  }
+
+  @keyframes blob2 {
+    0%,
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(-40px, 60px) scale(1.05);
+    }
+    66% {
+      transform: translate(20px, -40px) scale(0.95);
+    }
+  }
+
+  @keyframes blob2 {
+    0%,
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(20px, 140px) scale(1.15);
+    }
+    66% {
+      transform: translate(-30px, -30px) scale(0.95);
+    }
+  }
+
+  .animate-blob1 {
+    animation: blob1 8s ease-in-out infinite;
+  }
+
+  .animate-blob2 {
+    animation: blob2 10s ease-in-out infinite;
+  }
+
+  .animate-blob3 {
+    animation: blob3 12s ease-in-out infinite;
+  }
+}
+
+.input-box {
+  @apply mt-3 mb-4 flex w-full justify-between gap-3 rounded border border-gray-100 bg-gray-50/50 px-4 py-3 text-sm text-black outline-none focus-within:border-orange-300;
+}
+
+.btn-primary {
+  @apply my-1 flex w-full cursor-pointer items-center justify-center gap-3 rounded-md bg-black p-[10px] text-sm font-medium text-white shadow-lg shadow-orange-600/5 hover:bg-orange-600/15 hover:text-black;
+}
+
+.btn-small {
+  @apply flex cursor-pointer items-center justify-center gap-3 rounded-lg bg-linear-to-r from-[#FF9324] to-[#e99a4b] px-7 py-2 text-sm font-semibold text-white transition-colors hover:bg-black hover:text-white hover:shadow-2xl hover:shadow-orange-300;
+}
