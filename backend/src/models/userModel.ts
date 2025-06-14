@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
@@ -7,6 +7,7 @@ export interface IUser extends Document {
   profileImageUrl?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  _id: Types.ObjectId;
 }
 
 const UserSchema: Schema<IUser> = new Schema(

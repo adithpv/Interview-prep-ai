@@ -4,7 +4,7 @@ export interface ISession extends Document {
   user: Types.ObjectId;
   role: string;
   experience: string;
-  topicToFocus: string;
+  topicsToFocus: string;
   description?: string;
   questions: Types.ObjectId[];
   createdAt?: Date;
@@ -28,7 +28,7 @@ const SessionSchema: Schema<ISession> = new Schema(
       required: true,
       trim: true,
     },
-    topicToFocus: {
+    topicsToFocus: {
       type: String,
       required: true,
       trim: true,

@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 export interface IQuestion extends Document {
   session: Types.ObjectId;
+  user: Types.ObjectId;
   question: string;
   answer: string;
   note?: string;
@@ -15,6 +16,11 @@ const QuestionSchema: Schema<IQuestion> = new Schema(
     session: {
       type: Schema.Types.ObjectId,
       ref: "Session",
+      required: true,
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     question: {

@@ -1,11 +1,23 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import path from "path";
-
-dotenv.config();
+import { ENV } from "./utils/env";
+import { connectDb, disconnectDb } from "./config/db";
+import authRoutes from "./routes/authRoutes";
+import sessionRoutes from "./routes/sessionRoutes";
+import questionRoutes from "./routes/questionRoutes";
+import {
+  generateQuestions,
+  generateConceptExplanations,
+} from "./controllers/aiController";
+import { globalErrorHandler } from "./utils/errorHandler";
+import { requestLogger } from "./middlewares/requestLogger";
+import { protect } from "./middlewares/authMiddleware";
 
 const app = express();
+
 app.use(
   cors({
     origin: "*",
@@ -14,13 +26,41 @@ app.use(
   })
 );
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads"), {}));
+app.use("/uploads", express.static(path.join(__dirname, ENV.UPLOAD_DIR)));
 
 app.get("/", (_req, res) => {
   res.send("Backend is live! 🎉");
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+app.use(requestLogger);
+app.use("/api/auth", authRoutes);
+app.use("/api/sessions", sessionRoutes);
+app.use("/api/questions", questionRoutes);
+app.use("/api/ai/generate-questions", protect, generateQuestions);
+app.use("/api/ai/generate-explanation", protect, generateConceptExplanations);
+
+// Global error handler - must be after all routes
+app.use(globalErrorHandler);
+
+const startServer = async () => {
+  try {
+    await connectDb();
+
+    app.listen(ENV.PORT, () => {
+      console.log(
+        `[server] Listening at http://localhost:${ENV.PORT} (${ENV.NODE_ENV})`
+      );
+    });
+  } catch (error) {
+    console.error("[server] Startup error:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
+
+process.on("SIGINT", async () => {
+  console.log("\n🛑 SIGINT received. Shutting down...");
+  await disconnectDb();
+  process.exit(0);
 });
