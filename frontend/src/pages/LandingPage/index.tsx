@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LuSparkles } from "react-icons/lu";
 import HERO from "../../assets/hero.png";
@@ -6,13 +6,22 @@ import { APP_FEATURES } from "../../utils/data";
 import Login from "../Auth/Login";
 import SignUp from "../Auth/SignUp";
 import Modal from "../../components/Modal";
+import { UserContext } from "../../context/userContext";
+import ProfileInfoCard from "../../components/ProfileInfoCard";
 
 const LandingPage = () => {
   const [openAuthModel, setOpenAuthModel] = useState(false);
   const [currentPage, setCurrentPage] = useState("login");
+  const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const handleCTA = () => {};
+  const handleCTA = () => {
+    if (!user) {
+      setOpenAuthModel(true);
+    } else {
+      navigate("/dashboard");
+    }
+  };
 
   return (
     <>
@@ -23,12 +32,16 @@ const LandingPage = () => {
             <div className="text-xl font-bold text-black">
               Interview Ready AI
             </div>
-            <button
-              className="cursor-pointer rounded-full border border-white bg-linear-to-r from-[#ff9324] to-[#e99a4b] px-7 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black hover:text-white"
-              onClick={() => setOpenAuthModel(true)}
-            >
-              Login / Sign up
-            </button>
+            {user ? (
+              <ProfileInfoCard />
+            ) : (
+              <button
+                className="cursor-pointer rounded-full border border-white bg-linear-to-r from-[#ff9324] to-[#e99a4b] px-7 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black hover:text-white"
+                onClick={() => setOpenAuthModel(true)}
+              >
+                Login / Sign up
+              </button>
+            )}
           </header>
           <div className="flex flex-col items-center md:flex-row">
             <div className="mb-8 w-full pr-4 md:mb-8 md:w-1/2">
