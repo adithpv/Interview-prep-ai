@@ -1,9 +1,9 @@
 import express from "express";
 import {
-  registerUser,
-  loginUser,
-  getUserProfile,
-  uploadImage,
+    registerUser,
+    loginUser,
+    getUserProfile,
+    uploadImage,
 } from "../controllers/authController";
 import { protect } from "../middlewares/authMiddleware";
 import upload from "../middlewares/uploadMiddleware";

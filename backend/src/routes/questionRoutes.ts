@@ -1,9 +1,9 @@
 import express from "express";
 import { protect } from "../middlewares/authMiddleware";
 import {
-  addQuestionsToSession,
-  togglePinQuestion,
-  updateQuestionNote,
+    addQuestionsToSession,
+    togglePinQuestion,
+    updateQuestionNote,
 } from "../controllers/questionController";
 const router = express.Router();
 

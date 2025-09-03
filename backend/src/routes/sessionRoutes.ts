@@ -1,10 +1,10 @@
 import express from "express";
 import { protect } from "../middlewares/authMiddleware";
 import {
-  createSession,
-  deleteSession,
-  getMySessions,
-  getSessionById,
+    createSession,
+    deleteSession,
+    getMySessions,
+    getSessionById,
 } from "../controllers/sessionController";
 
 const router = express.Router();
