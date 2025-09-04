@@ -39,7 +39,6 @@ app.use("/api/questions", questionRoutes);
 app.use("/api/ai/generate-questions", protect, generateQuestions);
 app.use("/api/ai/generate-explanation", protect, generateConceptExplanations);
 
-// Global error handler - must be after all routes
 app.use(globalErrorHandler);
 
 const startServer = async () => {
