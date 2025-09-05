@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import cors from "cors";
 import path from "path";
 import { ENV } from "./utils/env";
 import { connectDb, disconnectDb } from "./config/db";
+import { serverConfigs } from "./config/serverConfig";
 import authRoutes from "./routes/authRoutes";
 import sessionRoutes from "./routes/sessionRoutes";
 import questionRoutes from "./routes/questionRoutes";
@@ -18,14 +18,10 @@ import { protect } from "./middlewares/authMiddleware";
 
 const app = express();
 
-app.use(
-    cors({
-        origin: "*",
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-    })
-);
-app.use(express.json());
+app.use(serverConfigs.helmet);
+app.use(serverConfigs.cors);
+app.use(express.json({ limit: "10mb" }));
+app.use(serverConfigs.generalLimiter);
 app.use("/uploads", express.static(path.join(__dirname, ENV.UPLOAD_DIR)));
 
 app.get("/", (_req, res) => {
@@ -33,7 +29,8 @@ app.get("/", (_req, res) => {
 });
 
 app.use(requestLogger);
-app.use("/api/auth", authRoutes);
+
+app.use("/api/auth", serverConfigs.authLimiter, authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/ai/generate-questions", protect, generateQuestions);

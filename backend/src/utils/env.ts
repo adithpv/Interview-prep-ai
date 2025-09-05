@@ -62,6 +62,7 @@ export const ENV = {
     NODE_ENV: getEnv<"development" | "production">("NODE_ENV", "development"),
     PORT: getEnv<number>("PORT", 5000),
     MONGO_DB_URI: getEnv<string>("MONGO_DB_URI"),
+    ALLOWED_ORIGINS: getEnv<string>("ALLOWED_ORIGINS", "http://localhost:5173"),
     IS_PROD: getEnv<boolean>("IS_PROD", false),
     JWT_SECRET: getEnv<string>("JWT_SECRET"),
     UPLOAD_DIR: getEnv<string>("UPLOAD_DIR", "uploads/"),
