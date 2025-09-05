@@ -10,7 +10,7 @@ const AiResponsePreview = ({ content }: { content: string }) => {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="prose prose-slate dark:prose-invert max-w-none text-[14px] [&_pre]:m-0 [&_pre]:bg-transparent [&_pre]:p-0">
+      <div className="prose prose-slate max-w-none text-[14px] text-gray-900 [&_pre]:m-0 [&_pre]:bg-transparent [&_pre]:p-0">
         <ReactMarkDown
           remarkPlugins={[remarkGfm]}
           components={{
@@ -22,7 +22,7 @@ const AiResponsePreview = ({ content }: { content: string }) => {
               if (isInline) {
                 return (
                   <code
-                    className="rounded bg-gray-100 px-1 py-0.5 text-sm"
+                    className="rounded bg-gray-100 px-1 py-0.5 text-sm text-gray-900"
                     {...props}
                   >
                     {children}
@@ -40,7 +40,7 @@ const AiResponsePreview = ({ content }: { content: string }) => {
               );
             },
             p({ children }) {
-              return <p className="mb-4 leading-5">{children}</p>;
+              return <p className="mb-4 leading-6 text-gray-900">{children}</p>;
             },
             strong({ children }) {
               return <strong>{children}</strong>;
@@ -50,42 +50,54 @@ const AiResponsePreview = ({ content }: { content: string }) => {
             },
             ul({ children }) {
               return (
-                <ul className="my-4 list-disc space-y-2 pl-6">{children}</ul>
+                <ul className="my-4 list-disc space-y-2 pl-6 text-gray-900">
+                  {children}
+                </ul>
               );
             },
             ol({ children }) {
               return (
-                <ol className="my-4 list-decimal space-y-2 pl-6">{children}</ol>
+                <ol className="my-4 list-decimal space-y-2 pl-6 text-gray-900">
+                  {children}
+                </ol>
               );
             },
             li({ children }) {
-              return <li className="mb-1">{children}</li>;
+              return <li className="mb-1 text-gray-900">{children}</li>;
             },
             blockquote({ children }) {
               return (
-                <blockquote className="my-4 border-l-4 border-gray-200 pl-4 italic">
+                <blockquote className="my-4 border-l-4 border-gray-200 pl-4 text-gray-700 italic">
                   {children}
                 </blockquote>
               );
             },
             h1({ children }) {
               return (
-                <h1 className="mt-6 mb-4 text-2xl font-bold">{children}</h1>
+                <h1 className="mt-6 mb-4 text-2xl font-bold text-gray-900">
+                  {children}
+                </h1>
               );
             },
             h2({ children }) {
               return (
-                <h2 className="mt-6 mb-3 text-xl font-bold">{children}</h2>
+                <h2 className="mt-6 mb-3 text-xl font-bold text-gray-900">
+                  {children}
+                </h2>
               );
             },
             h3({ children }) {
               return (
-                <h3 className="mt-5 mb-2 text-lg font-bold">{children}</h3>
+                <h3 className="mt-5 mb-2 text-lg font-bold text-gray-900">
+                  {children}
+                </h3>
               );
             },
             h4({ children }) {
               return (
-                <h4 className="mt-4 mb-2 text-base font-bold">{children}</h4>
+                <h4 className="mt-4 mb-2 text-base font-bold text-gray-900">
+                  {children}
+                </h4>
               );
             },
             a({ children, href }) {
@@ -113,7 +125,7 @@ const AiResponsePreview = ({ content }: { content: string }) => {
               );
             },
             tr({ children }) {
-              return <tr className="">{children}</tr>;
+              return <tr className="text-gray-900">{children}</tr>;
             },
             th({ children }) {
               return (
@@ -124,7 +136,7 @@ const AiResponsePreview = ({ content }: { content: string }) => {
             },
             td({ children }) {
               return (
-                <td className="px-3 py-2 text-sm whitespace-nowrap">
+                <td className="px-3 py-2 text-sm whitespace-nowrap text-gray-900">
                   {children}
                 </td>
               );
