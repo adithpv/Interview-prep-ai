@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import axiosInstance from "../utils/axios";
 import { API_PATHS } from "../utils/apiPaths";
 
-interface User {
+export interface User {
   _id: string;
   name: string;
   email: string;
