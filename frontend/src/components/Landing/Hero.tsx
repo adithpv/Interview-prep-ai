@@ -43,7 +43,7 @@ const Hero = ({ user, handleCTA, setOpenAuthModel }: HeroProps) => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center gap-2 rounded-full bg-neutral-900 pt-3 pr-6 pb-3 pl-6 text-sm font-medium text-white transition hover:bg-black"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-neutral-900 pt-3 pr-6 pb-3 pl-6 text-sm font-medium text-white transition hover:bg-black"
               onClick={() => setOpenAuthModel(true)}
             >
               Get started
@@ -84,7 +84,7 @@ const Hero = ({ user, handleCTA, setOpenAuthModel }: HeroProps) => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-2 rounded-full bg-neutral-900 pt-3 pr-6 pb-3 pl-6 text-sm font-medium text-white transition hover:bg-black"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-neutral-900 pt-3 pr-6 pb-3 pl-6 text-sm font-medium text-white transition hover:bg-black"
             onClick={handleCTA}
           >
             Get started

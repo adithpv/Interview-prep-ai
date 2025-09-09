@@ -30,6 +30,7 @@ export const registerUserService = async (
     email: string;
     name: string;
     profileImageUrl?: string;
+    token: string;
 }> => {
     const { email, password, name, profileImageUrl } = params;
 
@@ -44,12 +45,15 @@ export const registerUserService = async (
         profileImageUrl,
     });
 
+    const token = generateToken(user!._id.toString());
+
     return {
         message: "User registered successfully",
         id: user._id.toString(),
         email: user.email,
         name: user.name,
         profileImageUrl,
+        token,
     };
 };
 
