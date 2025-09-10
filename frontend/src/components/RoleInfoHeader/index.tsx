@@ -17,39 +17,34 @@ const RoleInfoHeader: FC<RoleInfoHeaderProps> = ({
   lastUpdated,
 }) => {
   return (
-    <div className="relative bg-white">
-      <div className="container mx-auto px-10 md:px-6">
-        <div className="relative z-10 flex h-[200px] flex-col justify-center">
-          <div className="flex items-start">
-            <div className="flex-grow">
-              <div className="flex items-start justify-between">
-                <div className="">
-                  <h2 className="text-2xl font-medium">{role}</h2>
-                  <p className="text-medium mt-1 text-sm text-gray-900">
-                    {topicsToFocus}
-                  </p>
-                </div>
-              </div>
+    <div className="relative w-full bg-gray-50">
+      <div className="relative mx-auto max-w-5xl px-6 py-16 sm:px-8 lg:px-12">
+        <div className="relative z-10 rounded-2xl border border-gray-200 bg-white/80 p-8 shadow-lg backdrop-blur-md">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+                {role}
+              </h2>
+              <p className="mt-2 text-sm font-medium text-gray-600 sm:text-base">
+                {topicsToFocus}
+              </p>
             </div>
-          </div>
-          <div className="mt-4 flex items-center gap-3">
-            <div className="rounded-full bg-black px-3 py-1 text-[10px] font-semibold text-white">
-              Experience: {experience} {experience === "1" ? "Year" : "Years"}
-            </div>
-            <div className="rounded-full bg-black px-3 py-1 text-[10px] font-semibold text-white">
-              {questions} Q&A
-            </div>
-            <div className="rounded-full bg-black px-3 py-1 text-[10px] font-semibold text-white">
-              Last Updated: {lastUpdated}
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full bg-gray-900 px-4 py-1.5 text-xs font-semibold text-white shadow-sm sm:text-sm">
+                {experience} {experience === "1" ? "Year" : "Years"}
+              </span>
+              <span className="rounded-full bg-emerald-500/90 px-4 py-1.5 text-xs font-semibold text-white shadow-sm sm:text-sm">
+                {questions} Q&A
+              </span>
+              <span className="rounded-full bg-cyan-500/90 px-4 py-1.5 text-xs font-semibold text-white shadow-sm sm:text-sm">
+                Updated {lastUpdated}
+              </span>
             </div>
           </div>
         </div>
-        <div className="absolute top-0 right-0 flex h-[200px] w-[40vw] items-center justify-center overflow-hidden bg-white md:w-[30vw]">
-          <div className="animate-blob1 h-16 w-16 bg-lime-400 blur-[65px]" />
-          <div className="animate-blob2 bg-lime-teal h-16 w-16 blur-[65px]" />
-          <div className="animate-blob3 h-16 w-16 bg-cyan-400 blur-[45px]" />
-          <div className="animate-blob4 h-16 w-16 bg-fuchsia-200 blur-[45px]" />
-        </div>
+        <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-lime-300/30 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-32 w-32 rounded-full bg-cyan-300/30 blur-2xl" />
+        <div className="absolute top-20 right-20 h-28 w-28 rounded-full bg-emerald-400/30 blur-2xl" />
       </div>
     </div>
   );
