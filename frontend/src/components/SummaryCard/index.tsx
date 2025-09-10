@@ -27,58 +27,43 @@ const SummaryCard: FC<SummaryCardProps> = ({
 }) => {
   return (
     <div
-      className="group relative cursor-pointer overflow-hidden rounded-xl border border-gray-300/40 bg-white p-2 shadow-gray-100 hover:shadow-xl"
+      className="group relative flex cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg"
       onClick={onSelect}
     >
       <div
-        className="relative cursor-pointer rounded-lg p-4"
+        className="relative flex items-center gap-4 p-5"
         style={{ background: colors.bgColor }}
       >
-        <div className="flex items-start">
-          <div className="mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-white">
-            <span className="text-lg font-semibold text-black">
-              {getInitials(role)}
-            </span>
-          </div>
-
-          <div className="flex-grow">
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-[17px] font-medium">{role}</h2>
-                <p className="text-medium text-xs text-gray-900">
-                  {topicsToFocus}
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-white text-base font-semibold text-gray-800 shadow">
+          {getInitials(role)}
         </div>
-
+        <div className="flex-1">
+          <h2 className="text-lg font-semibold text-gray-900">{role}</h2>
+          <p className="text-sm text-gray-700">{topicsToFocus}</p>
+        </div>
         <button
-          className="absolute top-0 right-0 hidden cursor-pointer items-center gap-2 rounded border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-medium text-nowrap text-rose-500 group-hover:flex hover:border-rose-200"
+          className="absolute top-4 right-4 hidden items-center justify-center rounded-md border border-rose-200 bg-rose-50 p-2 text-rose-500 opacity-0 transition group-hover:flex group-hover:opacity-100 hover:bg-rose-100"
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
           }}
         >
-          <LuTrash2 />
+          <LuTrash2 size={16} />
         </button>
       </div>
-      <div className="px-3 pb-3">
-        <div className="mt-4 flex items-center gap-3">
-          <div className="rounded-full border-[0.5px] border-gray-900 px-3 py-1 text-[10px] font-medium text-black">
-            Experience: {experience} {experience === 1 ? "Year" : "Years"}
-          </div>
-
-          <div className="rounded-full border-[0.5px] border-gray-900 px-3 py-1 text-[10px] font-medium text-black">
+      <div className="px-5 pb-5">
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="rounded-full border border-gray-300 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
+            {experience} {experience === 1 ? "Year" : "Years"}
+          </span>
+          <span className="rounded-full border border-gray-300 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
             {questions} Q&A
-          </div>
-          <div className="rounded-full border-[0.5px] border-gray-900 px-3 py-1 text-[10px] font-medium text-black">
-            Last Updated: {lastUpdated}
-          </div>
+          </span>
+          <span className="rounded-full border border-gray-300 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
+            Updated {lastUpdated}
+          </span>
         </div>
-        <p className="mt-3 line-clamp-2 text-[12px] font-medium text-gray-500">
-          {description}
-        </p>
+        <p className="mt-3 line-clamp-2 text-sm text-gray-600">{description}</p>
       </div>
     </div>
   );
