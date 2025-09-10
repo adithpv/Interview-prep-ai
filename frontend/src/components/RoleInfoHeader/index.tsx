@@ -26,7 +26,7 @@ const RoleInfoHeader: FC<RoleInfoHeaderProps> = ({
         <div className="relative z-10 rounded-2xl border border-gray-200 bg-white/80 p-8 shadow-lg backdrop-blur-md">
           <button
             onClick={() => navigate("/dashboard")}
-            className="mb-6 flex items-center gap-2 text-sm font-medium text-gray-600 transition hover:text-gray-900"
+            className="mb-6 flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-600 transition hover:text-gray-900"
           >
             <LuArrowLeft size={18} />
             Back to Dashboard
