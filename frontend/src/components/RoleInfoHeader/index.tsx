@@ -1,4 +1,6 @@
 import { type FC } from "react";
+import { useNavigate } from "react-router-dom";
+import { LuArrowLeft } from "react-icons/lu";
 
 interface RoleInfoHeaderProps {
   role?: string;
@@ -16,10 +18,19 @@ const RoleInfoHeader: FC<RoleInfoHeaderProps> = ({
   questions,
   lastUpdated,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="relative w-full bg-gray-50">
       <div className="relative mx-auto max-w-5xl px-6 py-16 sm:px-8 lg:px-12">
         <div className="relative z-10 rounded-2xl border border-gray-200 bg-white/80 p-8 shadow-lg backdrop-blur-md">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="mb-6 flex items-center gap-2 text-sm font-medium text-gray-600 transition hover:text-gray-900"
+          >
+            <LuArrowLeft size={18} />
+            Back to Dashboard
+          </button>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
