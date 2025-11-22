@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { HttpStatus } from "../utils/httpStatus";
 import { catchAsync } from "../utils/catchAsync";
 import { AuthenticatedRequest } from "../types";

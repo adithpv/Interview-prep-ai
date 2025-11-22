@@ -29,7 +29,6 @@ const InterviewPrep = () => {
       const response = await axiosInstance.get(
         API_PATHS.SESSION.GET_ONE(sessionId || ""),
       );
-      console.log("🚀 ~ fetchSessionDetailsById ~ response:", response);
 
       if (response.data && response.data.session) {
         setSessionData(response.data?.session);

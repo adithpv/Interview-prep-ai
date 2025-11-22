@@ -20,6 +20,7 @@ export const helmetConfig = helmet({
             }
         :   false,
     crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
     hsts:
         ENV.IS_PROD ?
             {

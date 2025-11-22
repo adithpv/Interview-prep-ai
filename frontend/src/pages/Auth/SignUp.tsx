@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useState, type FC, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, type FC, type FormEvent } from "react";
+import { toast } from "react-hot-toast";
 import Input from "../../components/Inputs";
 import ProfilePicSelector from "../../components/ProfilePicSelector";
 import { validateEmail } from "../../utils/helper";
-import { UserContext } from "../../context/userContext";
 import { API_PATHS } from "../../utils/apiPaths";
 import axiosInstance from "../../utils/axios";
 import uploadImage from "../../utils/uploadImage";
@@ -19,28 +18,28 @@ const SignUp: FC<SignUpProps> = ({ setCurrentPage }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { updateUser } = useContext(UserContext);
-
-  const navigate = useNavigate();
 
   const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    let profileImageUrl = "";
+    setError("");
 
     if (!fullName) {
       setError("Please enter your full name");
+      return;
     }
 
     if (!validateEmail(email)) {
       setError("Enter valid email address");
+      return;
     }
 
     if (!password) {
       setError("Please enter the password");
       return;
     }
-    setError("");
+
+    let profileImageUrl = "";
     try {
       if (profilePic) {
         const imageUploadRes = await uploadImage(profilePic);
@@ -54,12 +53,14 @@ const SignUp: FC<SignUpProps> = ({ setCurrentPage }) => {
         profileImageUrl,
       });
 
-      const { token } = response.data;
-
-      if (token) {
-        localStorage.setItem("token", token);
-        updateUser(response.data);
-        navigate("/dashboard");
+      if (response.data) {
+        toast.success("User registered successfully, please login to continue");
+        setCurrentPage("login");
+        setError("");
+        setFullName("");
+        setEmail("");
+        setPassword("");
+        setProfilePic(null);
       }
     } catch (error: unknown) {
       if (

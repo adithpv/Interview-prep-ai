@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useContext, useState, type FC, type FormEvent } from "react";
+import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/Inputs";
 import { validateEmail } from "../../utils/helper";
@@ -42,6 +43,7 @@ const Login: FC<LoginProps> = ({ setCurrentPage }) => {
         localStorage.setItem("token", token);
         updateUser(response.data);
         navigate("/dashboard");
+        toast.success("Login successful");
       }
     } catch (error: unknown) {
       if (
