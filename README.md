@@ -2,13 +2,12 @@
 
 A full-stack web app to help users prepare for technical interviews using AI-powered question generation, practice sessions, and user session management. This repository contains a TypeScript/Node backend and a React + Vite frontend.
 
-![App Screenshot](./docs/app-screenshot.png)
-
-> Replace `./docs/app-screenshot.png` with your app screenshot. You can paste an image into `docs/` and keep the same filename.
+> **Note:** This project is under active development. Bug fixes and feature improvements are being implemented regularly. Some features may be in progress or subject to change.
 
 ## Table of contents
 
 -   Project overview
+-   Screenshots
 -   Features
 -   Architecture
 -   Routes (high-level)
@@ -30,6 +29,26 @@ The repository is split into two main folders:
 
 -   `backend/` — TypeScript Node server (API, DB models, controllers, services)
 -   `frontend/` — React + Vite app (UI, pages, components)
+
+## Screenshots
+
+### Landing Page
+
+The landing page provides an introduction to the application, featuring a clean and modern design that welcomes users and highlights the key features of the interview preparation platform.
+
+![Landing Page](./images/homePage.png)
+
+### Application Interface
+
+After logging in, users are presented with the main dashboard interface where they can manage their interview practice sessions, view questions, and access AI-powered features.
+
+![Application Interface](./images/Interface.png)
+
+### Learn More
+
+For users who want to dive deeper into the platform's capabilities, the Learn More section provides detailed information about advanced features, best practices, and tips for effective interview preparation.
+
+![Learn More](./images/LearnMore.png)
 
 ## Features
 
@@ -82,8 +101,7 @@ Put environment variables in `backend/.env` (do not commit secrets). The code ex
 -   PORT — server port (e.g. 4000)
 -   JWT_SECRET — secret used to sign JSON Web Tokens
 -   NODE_ENV — development | production
--   OPENAI_API_KEY — (if AI service uses OpenAI)
--   CLOUDINARY*URL or CLOUDINARY*\* — (if uploads use Cloudinary)
+-   GEMINI_API_KEY — (if AI service uses Gemini Ai or change according to your api key)
 
 ## Setup & run
 
