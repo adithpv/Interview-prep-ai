@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { LuSparkles, LuBrain } from "react-icons/lu";
+import { LuSparkles } from "react-icons/lu";
 import HERO from "../../assets/hero.png";
 import AnimatedBrain from "../Shared/AniamtedBrain";
 
