@@ -1,4 +1,4 @@
-## Interview-ready AI App
+## Interview-prep AI App
 
 A full-stack web app to help users prepare for technical interviews using AI-powered question generation, practice sessions, and user session management. This repository contains a TypeScript/Node backend and a React + Vite frontend.
 
