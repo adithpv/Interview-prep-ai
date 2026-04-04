@@ -15,7 +15,7 @@ const initializeGenAI = async (): Promise<void> => {
 };
 
 export const generateQuestionsService = async (
-    params: QuestionAnswersPromptParams
+    params: QuestionAnswersPromptParams,
 ): Promise<GeneratedQAItem[]> => {
     await initializeGenAI();
 
@@ -29,7 +29,7 @@ export const generateQuestionsService = async (
     });
 
     const response = await genAI.models.generateContent({
-        model: "gemini-2.0-flash-lite",
+        model: ENV.GOOGLE_AI_MODEL,
         contents: prompt,
     });
 
@@ -48,14 +48,14 @@ export const generateQuestionsService = async (
 };
 
 export const generateConceptExplanationsService = async (
-    question: string
+    question: string,
 ): Promise<{ title: string; explanation: string }> => {
     await initializeGenAI();
 
     const prompt = conceptExplanationPrompt(question);
 
     const response = await genAI.models.generateContent({
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-2.5-flash",
         contents: prompt,
     });
 

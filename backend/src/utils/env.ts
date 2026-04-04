@@ -7,7 +7,7 @@ const DEBUG_ENV = process.env.DEBUG_ENV === "true";
 
 export function getEnv<T extends string | number | boolean>(
     key: string,
-    defaultValue?: T
+    defaultValue?: T,
 ): T {
     const value = process.env[key];
 
@@ -15,7 +15,7 @@ export function getEnv<T extends string | number | boolean>(
         if (defaultValue !== undefined) {
             if (DEBUG_ENV) {
                 console.warn(
-                    `[env] ${key} not set. Using default: ${defaultValue}`
+                    `[env] ${key} not set. Using default: ${defaultValue}`,
                 );
             }
             return defaultValue;
@@ -45,7 +45,7 @@ export function getEnv<T extends string | number | boolean>(
  * Gets an optional environment variable. Returns undefined if not set or invalid.
  */
 export function getOptionalEnv<T extends string | number | boolean>(
-    key: string
+    key: string,
 ): T | undefined {
     try {
         return getEnv<T>(key);
@@ -67,4 +67,5 @@ export const ENV = {
     JWT_SECRET: getEnv<string>("JWT_SECRET"),
     UPLOAD_DIR: getEnv<string>("UPLOAD_DIR", "uploads/"),
     GOOGLE_API_KEY: getEnv<string>("GOOGLE_API_KEY"),
+    GOOGLE_AI_MODEL: getEnv<string>("GOOGLE_AI_MODEL"),
 };

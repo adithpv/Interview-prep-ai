@@ -44,7 +44,7 @@ const startServer = async () => {
 
         app.listen(ENV.PORT, () => {
             console.log(
-                `[server] Listening at http://localhost:${ENV.PORT} (${ENV.NODE_ENV})`
+                `[server] Listening at http://localhost:${ENV.PORT} (${ENV.NODE_ENV})`,
             );
         });
     } catch (error) {
