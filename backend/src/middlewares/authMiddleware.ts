@@ -4,10 +4,7 @@ import { User } from "../models/userModel";
 import { ENV } from "../utils/env";
 import { catchAsync } from "../utils/catchAsync";
 import { UnauthorizedException } from "../utils/AppError";
-
-interface AuthenticatedRequest extends Request {
-    user?: any;
-}
+import { AuthenticatedRequest } from "../types";
 
 export const protect = catchAsync(
     async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {

@@ -1,28 +1,13 @@
 import { Question } from "../models/questionModel";
 import { Session } from "../models/sessionModel";
 import { assertNotFound, assertAuth, assertArray } from "../utils/appAssert";
-
-export interface QuestionData {
-    question: string;
-    answer: string;
-}
-
-export interface AddQuestionsToSessionParams {
-    sessionId: string;
-    questions: QuestionData[];
-    userId: string;
-}
-
-export interface TogglePinQuestionParams {
-    questionId: string;
-    userId: string;
-}
-
-export interface UpdateQuestionNoteParams {
-    questionId: string;
-    note: string;
-    userId: string;
-}
+import { Types } from "mongoose";
+import {
+    QuestionData,
+    AddQuestionsToSessionParams,
+    TogglePinQuestionParams,
+    UpdateQuestionNoteParams,
+} from "../types";
 
 export const addQuestionsToSessionService = async (
     params: AddQuestionsToSessionParams

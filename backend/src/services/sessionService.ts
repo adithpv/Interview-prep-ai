@@ -1,27 +1,13 @@
 import { Session } from "../models/sessionModel";
+import { User } from "../models/userModel";
 import { Question } from "../models/questionModel";
 import { assertNotFound, assertAuth } from "../utils/appAssert";
-
-export interface CreateSessionParams {
-    role: string;
-    experience: string;
-    topicsToFocus: string;
-    description?: string;
-    questions: Array<{
-        question: string;
-        answer: string;
-    }>;
-    userId: string;
-}
-
-export interface GetSessionByIdParams {
-    sessionId: string;
-}
-
-export interface DeleteSessionParams {
-    sessionId: string;
-    userId: string;
-}
+import { InternalServerErrorException } from "../utils/AppError";
+import {
+    CreateSessionParams,
+    GetSessionByIdParams,
+    DeleteSessionParams,
+} from "../types";
 
 export const createSessionService = async (
     params: CreateSessionParams

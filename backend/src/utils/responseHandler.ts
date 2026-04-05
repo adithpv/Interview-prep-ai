@@ -21,9 +21,13 @@ export const sendResponse = <T extends object | null>({
         return res.status(statusCode).json(data);
     }
 
+    const payloadData = data && typeof (data as any).toJSON === "function" 
+        ? (data as any).toJSON() 
+        : data;
+
     return res.status(statusCode).json({
         status: "success",
         ...(message && { message }),
-        ...(data && typeof data === "object" && !Array.isArray(data) ? data : data !== undefined ? { result: data } : {}),
+        ...(payloadData && typeof payloadData === "object" && !Array.isArray(payloadData) ? payloadData : payloadData !== undefined ? { result: payloadData } : {}),
     });
 };

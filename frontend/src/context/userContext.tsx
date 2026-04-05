@@ -13,7 +13,7 @@ export interface User {
 interface UserContextType {
   user: User | null;
   loading: boolean;
-  updateUser: (userData: User & { token?: string }) => void;
+  updateUser: (userData: User) => void;
   clearUser: () => void;
 }
 
@@ -33,18 +33,15 @@ const UserProvider = ({ children }: UserProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("token");
-    if (!accessToken) {
-      setLoading(false);
-      return;
-    }
-
     const fetchUser = async () => {
       try {
-        const response = await axiosInstance.get<{ user: User }>(
-          API_PATHS.AUTH.GET_PROFILE,
-        );
-        setUser(response.data.user);
+        const response = await axiosInstance.get(API_PATHS.AUTH.GET_PROFILE);
+        const userData = response.data.user || response.data.result || response.data.data || response.data;
+        if (userData && userData._id) {
+          setUser(userData);
+        } else {
+          clearUser();
+        }
       } catch (error) {
         console.error("User not authenticated", error);
         clearUser();
@@ -56,17 +53,13 @@ const UserProvider = ({ children }: UserProviderProps) => {
     fetchUser();
   }, []);
 
-  const updateUser = (userData: User & { token?: string }) => {
+  const updateUser = (userData: User) => {
     setUser(userData);
-    if (userData.token) {
-      localStorage.setItem("token", userData.token);
-    }
     setLoading(false);
   };
 
   const clearUser = () => {
     setUser(null);
-    localStorage.removeItem("token");
   };
 
   return (

@@ -30,8 +30,12 @@ const InterviewPrep = () => {
         API_PATHS.SESSION.GET_ONE(sessionId || ""),
       );
 
-      if (response.data && response.data.session) {
-        setSessionData(response.data?.session);
+      const actualData = response.data.result || response.data.data || response.data;
+      
+      if (actualData && actualData.session) {
+        setSessionData(actualData.session);
+      } else {
+        setSessionData(actualData);
       }
     } catch (error) {
       console.error("Errors", error);

@@ -45,7 +45,7 @@ export const registerUser = catchAsync(async (req: Request, res: Response) => {
         statusCode: HttpStatus.CREATED,
         message: result.message,
         data: {
-            id: result.id,
+            _id: result.id,
             email: result.email,
             name: result.name,
             profileImageUrl: result.profileImageUrl,
@@ -66,7 +66,7 @@ export const loginUser = catchAsync(async (req: Request, res: Response) => {
         statusCode: HttpStatus.OK,
         message: result.message,
         data: {
-            id: result.id,
+            _id: result.id,
             email: result.email,
             name: result.name,
             profileImageUrl: result.profileImageUrl,

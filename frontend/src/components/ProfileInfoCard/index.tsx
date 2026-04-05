@@ -3,6 +3,7 @@ import { UserContext } from "../../context/userContext";
 import { useNavigate } from "react-router-dom";
 import { getAvatar } from "../Shared/getAvatar";
 import axiosInstance from "../../utils/axios";
+import { API_PATHS } from "../../utils/apiPaths";
 
 const ProfileInfoCard = () => {
   const { user, clearUser } = useContext(UserContext);
@@ -10,12 +11,10 @@ const ProfileInfoCard = () => {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/api/auth/logout");
-      localStorage.clear();
+      await axiosInstance.post(API_PATHS.AUTH.LOGOUT);
       clearUser();
       navigate("/");
     } catch {
-      localStorage.clear();
       clearUser();
       navigate("/");
     }

@@ -3,25 +3,11 @@ import { User } from "../models/userModel";
 import { generateTokens } from "../utils/generateToken";
 import { assertAuth, assertNotFound, assertConflict } from "../utils/appAssert";
 import cloudinary from "../config/cloudinary";
-
-export interface RegisterUserParams {
-    email: string;
-    password: string;
-    name: string;
-    profileImageUrl?: string;
-}
-
-export interface LoginUserParams {
-    email: string;
-    password: string;
-}
-
-export interface UserProfile {
-    _id: string;
-    name: string;
-    email: string;
-    profileImageUrl?: string;
-}
+import {
+    RegisterUserParams,
+    LoginUserParams,
+    UserProfile,
+} from "../types";
 
 export const registerUserService = async (
     params: RegisterUserParams
