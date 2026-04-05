@@ -21,11 +21,12 @@ Task:
     {
         "question": "Question here?",
         "answer": "Answer here"
-    },
-    ...
+    }
 ]
 
-Important: Do NOT add any extra text. Only return valid JSON.
+CRITICAL RULES:
+1. Only return valid JSON. Do NOT add any extra text or markdown formatting outside the JSON array.
+2. You MUST strictly escape all double-quotes (\\") and newlines (\\n) inside the JSON string values. Code blocks inside the answers must NOT break the JSON structure.
 `;
 
 export const conceptExplanationPrompt = (question: string): string => `
@@ -44,5 +45,7 @@ Task:
     "explanation": "Explanation here"
 }
 
-Important: DO NOT add any extra text outside the JSON format. Only return the valid JSON.
+CRITICAL RULES:
+1. Only return valid JSON. Do NOT add any extra text or markdown formatting outside the JSON object.
+2. You MUST strictly escape all double-quotes (\\") and newlines (\\n) inside the JSON string values. Code blocks inside the explanation must NOT break the JSON structure.
 `;

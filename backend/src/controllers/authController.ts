@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { catchAsync } from "../utils/catchAsync";
 import { assertFieldsExist } from "../utils/appAssert";
 import { HttpStatus } from "../utils/httpStatus";
+import { sendResponse } from "../utils/responseHandler";
 import { AuthenticatedRequest } from "../types";
 import {
     registerUserService,
@@ -39,12 +40,16 @@ export const registerUser = catchAsync(async (req: Request, res: Response) => {
 
     setTokensAsCookies(res, result.accessToken, result.refreshToken);
 
-    return res.status(201).json({
+    return sendResponse({
+        res,
+        statusCode: HttpStatus.CREATED,
         message: result.message,
-        id: result.id,
-        email: result.email,
-        name: result.name,
-        profileImageUrl: result.profileImageUrl,
+        data: {
+            id: result.id,
+            email: result.email,
+            name: result.name,
+            profileImageUrl: result.profileImageUrl,
+        },
     });
 });
 
@@ -56,12 +61,16 @@ export const loginUser = catchAsync(async (req: Request, res: Response) => {
 
     setTokensAsCookies(res, result.accessToken, result.refreshToken);
 
-    return res.status(200).json({
+    return sendResponse({
+        res,
+        statusCode: HttpStatus.OK,
         message: result.message,
-        id: result.id,
-        email: result.email,
-        name: result.name,
-        profileImageUrl: result.profileImageUrl,
+        data: {
+            id: result.id,
+            email: result.email,
+            name: result.name,
+            profileImageUrl: result.profileImageUrl,
+        },
     });
 });
 
@@ -72,7 +81,7 @@ export const getUserProfile = catchAsync(
 
         const result = await getUserProfileService(userId);
 
-        return res.status(200).json(result);
+        return sendResponse({ res, statusCode: HttpStatus.OK, data: result });
     }
 );
 
@@ -86,13 +95,13 @@ export const uploadImage = catchAsync(async (req: Request, res: Response) => {
         file!.mimetype
     );
 
-    res.status(HttpStatus.OK).json(result);
+    sendResponse({ res, statusCode: HttpStatus.OK, data: result });
 });
 
 export const refreshTokenController = catchAsync(async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-        return res.status(401).json({ message: "No refresh token found" });
+        return sendResponse({ res, statusCode: HttpStatus.UNAUTHORIZED, message: "No refresh token found" });
     }
 
     try {
@@ -107,9 +116,9 @@ export const refreshTokenController = catchAsync(async (req: Request, res: Respo
             maxAge: 15 * 60 * 1000,
         });
 
-        res.status(200).json({ message: "Token refreshed" });
+        sendResponse({ res, statusCode: HttpStatus.OK, message: "Token refreshed" });
     } catch (e) {
-        return res.status(401).json({ message: "Invalid refresh token" });
+        return sendResponse({ res, statusCode: HttpStatus.UNAUTHORIZED, message: "Invalid refresh token" });
     }
 });
 
@@ -128,5 +137,5 @@ export const logoutUser = catchAsync(async (req: Request, res: Response) => {
         expires: new Date(0),
     });
 
-    res.status(200).json({ message: "Logged out successfully" });
+    sendResponse({ res, statusCode: HttpStatus.OK, message: "Logged out successfully" });
 });

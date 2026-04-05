@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import multer, { FileFilterCallback } from "multer";
 import { Request } from "express";
-import AppError from "../utils/AppError";
+import { BadRequestException } from "../utils/AppError";
 import { HttpStatus } from "../utils/httpStatus";
 
 const storage = multer.memoryStorage();
@@ -13,13 +13,15 @@ const fileFilter = (
     cb: FileFilterCallback
 ) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
+    const extname = allowedTypes.includes(file.mimetype);
+    const mimetype = allowedTypes.includes(file.mimetype);
+
+    if (extname && mimetype) {
+        return cb(null, true);
     } else {
         cb(
-            new AppError(
-                "Only .jpeg, .jpg, .png formats are allowed",
-                HttpStatus.BAD_REQUEST
+            new BadRequestException(
+                "Error: Only .jpeg, .jpg, .png formats are allowed"
             )
         );
     }

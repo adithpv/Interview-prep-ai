@@ -3,6 +3,7 @@ import { catchAsync } from "../utils/catchAsync";
 import { HttpStatus } from "../utils/httpStatus";
 import { assertFieldsExist } from "../utils/appAssert";
 import { GeneratedQAItem, QuestionAnswersPromptParams } from "../types";
+import { sendResponse } from "../utils/responseHandler";
 import {
     generateQuestionsService,
     generateConceptExplanationsService,
@@ -28,7 +29,7 @@ export const generateQuestions = catchAsync(
             numberOfQuestions,
         });
 
-        res.status(HttpStatus.OK).json(data);
+        sendResponse({ res, statusCode: HttpStatus.OK, data });
     }
 );
 
@@ -39,6 +40,6 @@ export const generateConceptExplanations = catchAsync(
 
         const data = await generateConceptExplanationsService(question);
 
-        res.status(HttpStatus.OK).json(data);
+        sendResponse({ res, statusCode: HttpStatus.OK, data });
     }
 );

@@ -31,17 +31,21 @@ export const generateQuestionsService = async (
     const response = await genAI.models.generateContent({
         model: ENV.GOOGLE_AI_MODEL,
         contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+        },
     });
 
     const rawText = response.text;
     if (!rawText) {
         throw new Error("No response text received from AI model");
     }
-
+    
+    // Gemini with responseMimeType usually returns raw JSON, but fallback cleanup just in case
     const cleanText = rawText
-        .replace(/^```json\s*/, "") // Remove starting ```json
-        .replace(/```$/, "") // Remove ending ```
-        .trim(); // Trim whitespace
+        .replace(/```(?:json)?\s*/g, "") // Remove Markdown Blocks globally
+        .replace(/[\u0000-\u001F]+/g, " ") // Strip raw unescaped control chars that break JSON.parse
+        .trim();
 
     const data = JSON.parse(cleanText);
     return data;
@@ -57,6 +61,9 @@ export const generateConceptExplanationsService = async (
     const response = await genAI.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+        },
     });
 
     const rawText = response.text;
@@ -65,9 +72,9 @@ export const generateConceptExplanationsService = async (
     }
 
     const cleanText = rawText
-        .replace(/^```json\s*/, "") // Remove starting ```json
-        .replace(/```$/, "") // Remove ending ```
-        .trim(); // Trim whitespace
+        .replace(/```(?:json)?\s*/g, "") // Remove Markdown Blocks globally
+        .replace(/[\u0000-\u001F]+/g, " ") // Strip raw unescaped control chars
+        .trim();
 
     const data = JSON.parse(cleanText);
     return data;

@@ -3,7 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { User } from "../models/userModel";
 import { ENV } from "../utils/env";
 import { catchAsync } from "../utils/catchAsync";
-import AppError from "../utils/AppError";
+import { UnauthorizedException } from "../utils/AppError";
 
 interface AuthenticatedRequest extends Request {
     user?: any;
@@ -17,18 +17,18 @@ export const protect = catchAsync(
             const decoded = jwt.verify(token, ENV.JWT_SECRET) as JwtPayload;
 
             if (!decoded || typeof decoded !== "object" || !decoded.id) {
-                throw new AppError("Invalid token payload", 401);
+                throw new UnauthorizedException("Invalid token payload");
             }
 
             const user = await User.findById(decoded.id).select("-password");
             if (!user) {
-                throw new AppError("User not found", 401);
+                throw new UnauthorizedException("User not found");
             }
 
             req.user = user;
             next();
         } else {
-            throw new AppError("Not authorized, no token provided", 401);
+            throw new UnauthorizedException("Not authorized, no token provided");
         }
     }
 );

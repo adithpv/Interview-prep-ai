@@ -3,6 +3,7 @@ import { HttpStatus } from "../utils/httpStatus";
 import { catchAsync } from "../utils/catchAsync";
 import { AuthenticatedRequest } from "../types";
 import { assertFieldsExist } from "../utils/appAssert";
+import { sendResponse } from "../utils/responseHandler";
 import {
     createSessionService,
     getMySessionsService,
@@ -26,7 +27,7 @@ export const createSession = catchAsync(
             userId: userId.toString(),
         });
 
-        res.status(HttpStatus.CREATED).json(result);
+        sendResponse({ res, statusCode: HttpStatus.CREATED, data: result });
     }
 );
 
@@ -37,7 +38,7 @@ export const getMySessions = catchAsync(
 
         const sessions = await getMySessionsService(userId.toString());
 
-        res.status(HttpStatus.OK).json(sessions);
+        sendResponse({ res, statusCode: HttpStatus.OK, data: sessions });
     }
 );
 
@@ -48,7 +49,7 @@ export const getSessionById = catchAsync(
 
         const result = await getSessionByIdService({ sessionId });
 
-        res.status(HttpStatus.OK).json(result);
+        sendResponse({ res, statusCode: HttpStatus.OK, data: result });
     }
 );
 
@@ -64,6 +65,6 @@ export const deleteSession = catchAsync(
             userId: userId.toString(),
         });
 
-        res.status(HttpStatus.OK).json(result);
+        sendResponse({ res, statusCode: HttpStatus.OK, data: result });
     }
 );

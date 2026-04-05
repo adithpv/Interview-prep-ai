@@ -1,13 +1,18 @@
-import AppError from "./AppError";
-import { HttpStatus } from "./httpStatus";
+import { 
+    BadRequestException, 
+    UnauthorizedException, 
+    ForbiddenException, 
+    NotFoundException, 
+    ConflictException 
+} from "./AppError";
 
 export const appAssert = (
     condition: boolean,
     message: string,
-    statusCode: number = HttpStatus.BAD_REQUEST
+    ErrorClass: new (msg: string) => Error = BadRequestException
 ): void => {
     if (!condition) {
-        throw new AppError(message, statusCode);
+        throw new ErrorClass(message);
     }
 };
 
@@ -29,7 +34,7 @@ export const assertFieldsExist = (
         const isValid =
             typeof value === "string" ? value.trim().length > 0 : value != null;
 
-        appAssert(isValid, `${label} is required`, HttpStatus.BAD_REQUEST);
+        appAssert(isValid, `${label} is required`, BadRequestException);
     });
 };
 
@@ -37,28 +42,28 @@ export const assertAuth = (
     condition: boolean,
     message: string = "Not authorized"
 ): void => {
-    appAssert(condition, message, HttpStatus.UNAUTHORIZED);
+    appAssert(condition, message, UnauthorizedException);
 };
 
 export const assertForbidden = (
     condition: boolean,
     message: string = "Forbidden"
 ): void => {
-    appAssert(condition, message, HttpStatus.FORBIDDEN);
+    appAssert(condition, message, ForbiddenException);
 };
 
 export function assertNotFound<T>(
     value: T,
     name: string
 ): asserts value is NonNullable<T> {
-    appAssert(value != null, `${name} not found`, HttpStatus.NOT_FOUND);
+    appAssert(value != null, `${name} not found`, NotFoundException);
 }
 
 export const assertConflict = (
     condition: boolean,
     message: string = "Conflict"
 ): void => {
-    appAssert(condition, message, HttpStatus.CONFLICT);
+    appAssert(condition, message, ConflictException);
 };
 
 export function assertArray<T>(
@@ -68,6 +73,6 @@ export function assertArray<T>(
     appAssert(
         Array.isArray(value),
         `${name} must be an array`,
-        HttpStatus.BAD_REQUEST
+        BadRequestException
     );
 }

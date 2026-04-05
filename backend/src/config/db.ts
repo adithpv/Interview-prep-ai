@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import AppError from "../utils/AppError";
+import { InternalServerErrorException } from "../utils/AppError";
 import { getEnv } from "../utils/env";
 import { HttpStatus } from "../utils/httpStatus";
 
@@ -34,9 +34,8 @@ export const connectDb = async (
     const uri = getEnv<string>("MONGO_DB_URI");
 
     if (!uri) {
-        throw new AppError(
-            "MongoDB URI not configured",
-            HttpStatus.INTERNAL_SERVER_ERROR
+        throw new InternalServerErrorException(
+            "Failed to establish database connection"
         );
     }
 
@@ -63,11 +62,8 @@ export const connectDb = async (
 
             isConnected = false;
             connectionPromise = null;
-            throw new AppError(
-                `❌ Failed to connect to MongoDB after ${maxRetries} retries: ${
-                    error instanceof Error ? error.message : "Unknown error"
-                }`,
-                HttpStatus.SERVICE_UNAVAILABLE
+            throw new InternalServerErrorException(
+                "Database initialization failed. Mismatched database URL environment mappings."
             );
         }
     };
@@ -88,9 +84,8 @@ export const disconnectDb = async (): Promise<void> => {
         connectionPromise = null;
         console.log("🛑 MongoDB disconnected");
     } catch (error) {
-        throw new AppError(
-            `❌ Failed to disconnect from MongoDB: ${error instanceof Error ? error.message : "Unknown error"}`,
-            HttpStatus.INTERNAL_SERVER_ERROR
+        throw new InternalServerErrorException(
+            `❌ Failed to disconnect from MongoDB: ${error instanceof Error ? error.message : "Unknown error"}`
         );
     }
 };

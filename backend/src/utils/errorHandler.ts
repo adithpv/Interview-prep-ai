@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import AppError from "./AppError";
+import { AppError, BadRequestException, UnauthorizedException, ForbiddenException } from "./AppError";
 
 interface ErrorResponse {
     status: string;
@@ -10,26 +10,26 @@ interface ErrorResponse {
 
 const handleCastErrorDB = (err: any): AppError => {
     const message = `Invalid ${err.path}: ${err.value}.`;
-    return new AppError(message, 400);
+    return new BadRequestException(message);
 };
 
 const handleDuplicateFieldsDB = (err: any): AppError => {
     const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
     const message = `Duplicate field value: ${value}. Please use another value!`;
-    return new AppError(message, 400);
+    return new BadRequestException(message);
 };
 
 const handleValidationErrorDB = (err: any): AppError => {
     const errors = Object.values(err.errors).map((el: any) => el.message);
     const message = `Invalid input data. ${errors.join(". ")}`;
-    return new AppError(message, 400);
+    return new BadRequestException(message);
 };
 
 const handleJWTError = (): AppError =>
-    new AppError("Invalid token. Please log in again!", 401);
+    new UnauthorizedException("Invalid token. Please log in again!");
 
 const handleJWTExpiredError = (): AppError =>
-    new AppError("Your token has expired! Please log in again.", 401);
+    new UnauthorizedException("Your token has expired! Please log in again.");
 
 const sendErrorDev = (err: AppError, res: Response) => {
     res.status(err.statusCode).json({
@@ -60,6 +60,9 @@ const sendErrorProd = (err: AppError, res: Response) => {
     }
 };
 
+const handleCSRFError = (): AppError =>
+    new ForbiddenException("Invalid CSRF Token.");
+
 export const globalErrorHandler = (
     err: any,
     req: Request,
@@ -74,6 +77,8 @@ export const globalErrorHandler = (
     } else if (process.env.NODE_ENV === "production") {
         let error = { ...err };
         error.message = err.message;
+        error.name = err.name;
+        error.code = err.code;
 
         if (error.name === "CastError") error = handleCastErrorDB(error);
         if (error.code === 11000) error = handleDuplicateFieldsDB(error);
@@ -81,6 +86,7 @@ export const globalErrorHandler = (
             error = handleValidationErrorDB(error);
         if (error.name === "JsonWebTokenError") error = handleJWTError();
         if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
+        if (error.code === "EBADCSRFTOKEN") error = handleCSRFError();
 
         sendErrorProd(error, res);
     }

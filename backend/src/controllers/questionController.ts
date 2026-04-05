@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { catchAsync } from "../utils/catchAsync";
 import { HttpStatus } from "../utils/httpStatus";
 import { assertFieldsExist, assertArray } from "../utils/appAssert";
+import { sendResponse } from "../utils/responseHandler";
 import { AuthenticatedRequest } from "../types";
 import {
     addQuestionsToSessionService,
@@ -23,7 +24,7 @@ export const addQuestionsToSession = catchAsync(
             userId: userId.toString(),
         });
 
-        res.status(HttpStatus.CREATED).json(result);
+        sendResponse({ res, statusCode: HttpStatus.CREATED, data: result });
     }
 );
 
@@ -38,7 +39,7 @@ export const togglePinQuestion = catchAsync(
             userId: userId.toString(),
         });
 
-        res.status(HttpStatus.OK).json(result);
+        sendResponse({ res, statusCode: HttpStatus.OK, data: result });
     }
 );
 
@@ -56,6 +57,6 @@ export const updateQuestionNote = catchAsync(
             userId: userId.toString(),
         });
 
-        res.status(HttpStatus.OK).json(result);
+        sendResponse({ res, statusCode: HttpStatus.OK, data: result });
     }
 );
