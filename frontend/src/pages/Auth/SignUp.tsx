@@ -3,9 +3,9 @@ import { useState, type FC, type FormEvent } from "react";
 import { toast } from "react-hot-toast";
 import Input from "../../components/Inputs";
 import ProfilePicSelector from "../../components/ProfilePicSelector";
-import { validateEmail } from "../../utils/helper";
 import { API_PATHS } from "../../utils/apiPaths";
 import axiosInstance from "../../utils/axios";
+import { registerSchema } from "../../schemas/authSchemas";
 import uploadImage from "../../utils/uploadImage";
 
 interface SignUpProps {
@@ -21,21 +21,11 @@ const SignUp: FC<SignUpProps> = ({ setCurrentPage }) => {
 
   const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setError("");
 
-    if (!fullName) {
-      setError("Please enter your full name");
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      setError("Enter valid email address");
-      return;
-    }
-
-    if (!password) {
-      setError("Please enter the password");
+    const validation = registerSchema.safeParse({ name: fullName, email, password });
+    if (!validation.success) {
+      setError(validation.error.issues[0].message);
       return;
     }
 

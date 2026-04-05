@@ -6,27 +6,23 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
-
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      window.location.href = "/";
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Avoid infinite loops
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        await axios.post(`${BASE_URL}/api/auth/refresh`, {}, { withCredentials: true });
+        return axiosInstance(originalRequest);
+      } catch (err) {
+        window.location.href = "/";
+      }
     } else if (error.response?.status === 500) {
       console.error("Server error, Please try again later");
     } else if (error?.code === "ENCONNABORTED") {

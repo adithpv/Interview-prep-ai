@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { User } from "../models/userModel";
-import { generateToken } from "../utils/generateToken";
+import { generateTokens } from "../utils/generateToken";
 import { assertAuth, assertNotFound, assertConflict } from "../utils/appAssert";
 
 export interface RegisterUserParams {
@@ -30,7 +30,8 @@ export const registerUserService = async (
     email: string;
     name: string;
     profileImageUrl?: string;
-    token: string;
+    accessToken: string;
+    refreshToken: string;
 }> => {
     const { email, password, name, profileImageUrl } = params;
 
@@ -45,7 +46,7 @@ export const registerUserService = async (
         profileImageUrl,
     });
 
-    const token = generateToken(user!._id.toString());
+    const { accessToken, refreshToken } = generateTokens(user!._id.toString());
 
     return {
         message: "User registered successfully",
@@ -53,7 +54,8 @@ export const registerUserService = async (
         email: user.email,
         name: user.name,
         profileImageUrl,
-        token,
+        accessToken,
+        refreshToken,
     };
 };
 
@@ -65,7 +67,8 @@ export const loginUserService = async (
     email: string;
     name: string;
     profileImageUrl?: string;
-    token: string;
+    accessToken: string;
+    refreshToken: string;
 }> => {
     const { email, password } = params;
 
@@ -75,7 +78,7 @@ export const loginUserService = async (
     const isPasswordValid = await bcrypt.compare(password, user!.password);
     assertAuth(isPasswordValid, "Invalid credentials");
 
-    const token = generateToken(user!._id.toString());
+    const { accessToken, refreshToken } = generateTokens(user!._id.toString());
 
     return {
         message: "Login successful",
@@ -83,7 +86,8 @@ export const loginUserService = async (
         email: user!.email,
         name: user!.name,
         profileImageUrl: user!.profileImageUrl,
-        token,
+        accessToken,
+        refreshToken,
     };
 };
 

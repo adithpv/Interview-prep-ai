@@ -11,11 +11,9 @@ interface AuthenticatedRequest extends Request {
 
 export const protect = catchAsync(
     async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-        let token = req.headers.authorization;
+        const token = req.cookies.accessToken;
 
-        if (token && token.startsWith("Bearer ")) {
-            token = token.split(" ")[1];
-
+        if (token) {
             const decoded = jwt.verify(token, ENV.JWT_SECRET) as JwtPayload;
 
             if (!decoded || typeof decoded !== "object" || !decoded.id) {

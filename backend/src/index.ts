@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import path from "path";
+import cookieParser from "cookie-parser";
 import { ENV } from "./utils/env";
 import { connectDb, disconnectDb } from "./config/db";
 import { serverConfigs } from "./config/serverConfig";
@@ -21,6 +22,7 @@ const app = express();
 app.use(serverConfigs.helmet);
 app.use(serverConfigs.cors);
 app.use(express.json({ limit: "10mb" }));
+app.use(cookieParser());
 app.use(serverConfigs.generalLimiter);
 app.use("/uploads", express.static(path.join(__dirname, ENV.UPLOAD_DIR)));
 

@@ -65,6 +65,7 @@ export const ENV = {
     ALLOWED_ORIGINS: getEnv<string>("ALLOWED_ORIGINS", "http://localhost:5173"),
     IS_PROD: getEnv<boolean>("IS_PROD", false),
     JWT_SECRET: getEnv<string>("JWT_SECRET"),
+    JWT_REFRESH_SECRET: getEnv<string>("JWT_REFRESH_SECRET", "refresh_fallback_secret"),
     UPLOAD_DIR: getEnv<string>("UPLOAD_DIR", "uploads/"),
     GOOGLE_API_KEY: getEnv<string>("GOOGLE_API_KEY"),
     GOOGLE_AI_MODEL: getEnv<string>("GOOGLE_AI_MODEL"),

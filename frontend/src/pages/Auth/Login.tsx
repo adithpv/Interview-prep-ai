@@ -3,9 +3,10 @@ import { useContext, useState, type FC, type FormEvent } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/Inputs";
-import { validateEmail } from "../../utils/helper";
+
 import axiosInstance from "../../utils/axios";
 import { API_PATHS } from "../../utils/apiPaths";
+import { loginSchema } from "../../schemas/authSchemas";
 import { UserContext } from "../../context/userContext";
 
 interface LoginProps {
@@ -21,26 +22,21 @@ const Login: FC<LoginProps> = ({ setCurrentPage }) => {
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email");
+    setError("");
+
+    const validation = loginSchema.safeParse({ email, password });
+    if (!validation.success) {
+      setError(validation.error.issues[0].message);
       return;
     }
 
-    if (!password) {
-      setError("Please enter the password");
-      return;
-    }
-    setError("");
     try {
       const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
         email,
         password,
       });
 
-      const { token } = response.data;
-
-      if (token) {
-        localStorage.setItem("token", token);
+      if (response.data) {
         updateUser(response.data);
         navigate("/dashboard");
         toast.success("Login successful");
