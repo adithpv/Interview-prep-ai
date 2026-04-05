@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { LuPlus } from "react-icons/lu";
-import { toast } from "react-hot-toast";
+import { goeyToast as toast } from "goey-toast";
 import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import Modal from "../../components/Modal";
 import CreateSessionForm from "../../components/CreateSessionForm";
@@ -24,6 +24,7 @@ const Dashboard = () => {
     open: false,
     data: null,
   });
+  const [isDeletingSession, setIsDeletingSession] = useState(false);
 
   const fetchAllSessions = async () => {
     try {
@@ -36,15 +37,21 @@ const Dashboard = () => {
 
   const deleteSession = async (sessionData: ISession) => {
     try {
+      setIsDeletingSession(true);
       await axiosInstance.delete(API_PATHS.SESSION.DELETE(sessionData?._id));
-      toast.success("Session Deleted Successfully");
+      toast.success("Session Deleted Successfully", {
+        description: "The interview session record has been permanently removed.",
+      });
       setOpenDeleteAlert({
         open: false,
         data: null,
       });
       fetchAllSessions();
     } catch (error) {
+      toast.error("Error deleting session");
       console.error("Error deleting session", error);
+    } finally {
+      setIsDeletingSession(false);
     }
   };
 
@@ -112,6 +119,7 @@ const Dashboard = () => {
         <div className="w-[30vw]">
           <DeleteAlertContent
             content="Are you sure you want to delete this session detail?"
+            isDeleting={isDeletingSession}
             onDelete={() =>
               openDeleteAlert.data && deleteSession(openDeleteAlert.data)
             }

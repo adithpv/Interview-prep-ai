@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, type FC, type FormEvent } from "react";
-import { toast } from "react-hot-toast";
+import { goeyToast as toast } from "goey-toast";
 import Input from "../../components/Inputs";
 import ProfilePicSelector from "../../components/ProfilePicSelector";
 import { API_PATHS } from "../../utils/apiPaths";
 import axiosInstance from "../../utils/axios";
 import { registerSchema } from "../../schemas/authSchemas";
 import uploadImage from "../../utils/uploadImage";
+import { getErrorMessage } from "../../utils/errorHandler";
 
 interface SignUpProps {
   setCurrentPage: (page: string) => void;
@@ -18,6 +19,7 @@ const SignUp: FC<SignUpProps> = ({ setCurrentPage }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,6 +33,7 @@ const SignUp: FC<SignUpProps> = ({ setCurrentPage }) => {
 
     let profileImageUrl = "";
     try {
+      setIsLoading(true);
       if (profilePic) {
         const imageUploadRes = await uploadImage(profilePic);
         profileImageUrl = imageUploadRes.imageUrl || "";
@@ -44,7 +47,9 @@ const SignUp: FC<SignUpProps> = ({ setCurrentPage }) => {
       });
 
       if (response.data) {
-        toast.success("User registered successfully, please login to continue");
+        toast.success("User registered successfully", {
+          description: "Please login using your new credentials to continue.",
+        });
         setCurrentPage("login");
         setError("");
         setFullName("");
@@ -53,18 +58,9 @@ const SignUp: FC<SignUpProps> = ({ setCurrentPage }) => {
         setProfilePic(null);
       }
     } catch (error: unknown) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "response" in error &&
-        typeof (error as any).response === "object" &&
-        "data" in (error as any).response &&
-        "message" in (error as any).response.data
-      ) {
-        setError((error as any).response.data.message);
-      } else {
-        setError("Something went wrong, please try again.");
-      }
+      setError(getErrorMessage(error));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -101,11 +97,17 @@ const SignUp: FC<SignUpProps> = ({ setCurrentPage }) => {
           />
         </div>
         {error && <p className="pb-2.5 text-xs text-red-500">{error}</p>}
-        <button className="btn-primary" type="submit">
-          SIGN UP
-        </button>
-        <p className="mt-3 text-[13px] text-slate-800">
-          Already have an account{" "}
+        <div className="mt-2 flex flex-col gap-4">
+          <button 
+            disabled={isLoading}
+            className="inline-flex h-10 w-full items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-50" 
+            type="submit"
+          >
+            {isLoading ? "Creating account..." : "SIGN UP"}
+          </button>
+        </div>
+        <p className="mt-4 text-center text-sm text-slate-600">
+          Already have an account?{" "}
           <button
             className="text-primary cursor-pointer font-medium underline"
             onClick={() => {

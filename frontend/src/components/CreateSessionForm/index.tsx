@@ -1,8 +1,8 @@
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import Input from "../Inputs";
 import SpinnerLoader from "../SpinnerLoader";
+import { getErrorMessage } from "../../utils/errorHandler";
 import axiosInstance from "../../utils/axios";
 import { API_PATHS } from "../../utils/apiPaths";
 
@@ -71,16 +71,7 @@ const CreateSessionForm = () => {
           navigate(`/interview-prep/${sessionId}`);
         }
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error(error.response?.data?.message);
-          setError(
-            error.response?.data?.message ||
-              "Something went wrong, Please try again later",
-          );
-        } else {
-          console.error("Unexpected error", error);
-          setError("Something went wrong, Please try again later");
-        }
+        setError(getErrorMessage(error));
       } finally {
         setIsLoading(false);
       }
@@ -129,7 +120,7 @@ const CreateSessionForm = () => {
         {error && <p className="pb-2.5 text-xs text-red-500">{error}</p>}
         <button
           type="submit"
-          className="btn-primary mt-2 w-full pb-2"
+          className="mt-2 inline-flex h-10 w-full items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
           disabled={isLoading}
         >
           {isLoading && <SpinnerLoader />} Create Session

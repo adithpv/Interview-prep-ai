@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { UserContext } from "../../context/userContext";
 import { useNavigate } from "react-router-dom";
 import { getAvatar } from "../Shared/getAvatar";
@@ -7,16 +7,20 @@ import { API_PATHS } from "../../utils/apiPaths";
 
 const ProfileInfoCard = () => {
   const { user, clearUser } = useContext(UserContext);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
+      setIsLoggingOut(true);
       await axiosInstance.post(API_PATHS.AUTH.LOGOUT);
       clearUser();
       navigate("/");
     } catch {
       clearUser();
       navigate("/");
+    } finally {
+      setIsLoggingOut(false);
     }
   };
   return (
@@ -28,10 +32,11 @@ const ProfileInfoCard = () => {
             {user?.name || ""}
           </div>
           <button
-            className="text-semibold cursor-pointer text-amber-600 hover:underline"
+            className="text-semibold cursor-pointer text-amber-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
             onClick={handleLogout}
+            disabled={isLoggingOut}
           >
-            Logout
+            {isLoggingOut ? "Logging out..." : "Logout"}
           </button>
         </div>
       </div>

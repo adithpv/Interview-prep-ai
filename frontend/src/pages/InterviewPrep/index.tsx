@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import moment from "moment";
 import { AnimatePresence, motion } from "framer-motion";
-import { toast } from "react-hot-toast";
+import { goeyToast as toast } from "goey-toast";
 import { LuCircleAlert, LuListCollapse } from "react-icons/lu";
 import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import RoleInfoHeader from "../../components/RoleInfoHeader";
@@ -13,7 +13,8 @@ import QuestionCard from "../../components/QuestionCard";
 import AiResponsePreview from "../../components/AiResponsePreview";
 import Drawer from "../../components/Drawer";
 import SkeletonLoader from "../../components/SkeletonLoader";
-import type { ISession, IAIExplanation, IApiError } from "../../types";
+import { getErrorMessage } from "../../utils/errorHandler";
+import type { ISession, IAIExplanation } from "../../types";
 
 const InterviewPrep = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -61,7 +62,7 @@ const InterviewPrep = () => {
       }
     } catch (error: unknown) {
       setExplanation(null);
-      setErrorMsg("Failed to generate explanations");
+      setErrorMsg(getErrorMessage(error));
       console.error("Errors", error);
     } finally {
       setIsLoading(false);
@@ -78,6 +79,9 @@ const InterviewPrep = () => {
         fetchSessionDetailsById();
       }
     } catch (error) {
+      toast.error(getErrorMessage(error), {
+        description: "Please check your connection or wait a moment before trying again.",
+      });
       console.error("Error", error);
     }
   };
@@ -108,12 +112,7 @@ const InterviewPrep = () => {
         fetchSessionDetailsById();
       }
     } catch (error: unknown) {
-      const apiError = error as IApiError;
-      if (apiError.message) {
-        setErrorMsg(apiError.message);
-      } else {
-        setErrorMsg("Something went wrong, Please try again later");
-      }
+      setErrorMsg(getErrorMessage(error));
     } finally {
       setIsUpdateLoader(false);
     }

@@ -23,29 +23,26 @@ const Input: React.FC<InputProps> = ({
           {label}
         </label>
       )}
-      <div className="input-box">
+      <div className="relative flex items-center">
         <input
           id={inputId}
           {...props}
           type={isPassword ? (showPassword ? "text" : "password") : type}
-          className={`w-full bg-transparent outline-none ${className}`}
+          className={`flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-50 ${className} ${isPassword ? "pr-10" : ""}`}
         />
         {isPassword && (
-          <>
+          <button
+            type="button"
+            className="absolute right-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none"
+            onClick={() => setShowPassword((prev) => !prev)}
+            tabIndex={-1}
+          >
             {showPassword ? (
-              <FaRegEyeSlash
-                size={20}
-                className="text-primary cursor-pointer"
-                onClick={() => setShowPassword((prev) => !prev)}
-              />
+              <FaRegEyeSlash size={18} className="text-amber-600" />
             ) : (
-              <FaRegEye
-                size={20}
-                className="cursor-pointer text-slate-400"
-                onClick={() => setShowPassword((prev) => !prev)}
-              />
+              <FaRegEye size={18} />
             )}
-          </>
+          </button>
         )}
       </div>
     </div>

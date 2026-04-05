@@ -42,7 +42,10 @@ axiosInstance.interceptors.response.use(
         await axios.post(`${BASE_URL}/api/auth/refresh`, {}, { withCredentials: true });
         return axiosInstance(originalRequest);
       } catch (err) {
-        window.location.href = "/";
+        if (window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
+        return Promise.reject(error);
       }
     } else if (error.response?.status === 500) {
       console.error("Server error, Please try again later");

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { GoeyToaster as Toaster } from "goey-toast";
+import "goey-toast/styles.css";
 
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Home/Dashboard";
@@ -22,6 +23,10 @@ const App = () => {
         </Router>
 
         <Toaster
+          position="top-center"
+          showProgress={true}
+          duration={4000}
+          closeButton="top-right"
           toastOptions={{
             className: "",
             style: {

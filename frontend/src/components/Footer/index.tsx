@@ -1,3 +1,6 @@
+import { useContext } from "react";
+import { UserContext } from "../../context/userContext";
+import { useNavigate } from "react-router-dom";
 import { LuSparkles } from "react-icons/lu";
 import { FaReact, FaGithub, FaLinkedin } from "react-icons/fa";
 import { SiTailwindcss, SiMongodb } from "react-icons/si";
@@ -9,6 +12,16 @@ interface FooterProps {
 }
 
 const Footer = ({ setOpenAuthModel }: FooterProps) => {
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const handleQuickAccess = () => {
+    if (user) {
+      navigate("/dashboard");
+    } else {
+      setOpenAuthModel(true);
+    }
+  };
   return (
     <footer className="relative mx-4 mb-8 rounded-[40px] border border-white/10 bg-neutral-950 text-white shadow-[0_8px_30px_rgba(0,0,0,0.18)] sm:mx-6">
       <div className="pointer-events-none absolute inset-0">
@@ -40,7 +53,7 @@ const Footer = ({ setOpenAuthModel }: FooterProps) => {
             <p className="text-sm text-white/60">Quick Access</p>
             <a
               className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-medium text-gray-900 transition hover:bg-white/90"
-              onClick={() => setOpenAuthModel(true)}
+              onClick={handleQuickAccess}
             >
               <LuSparkles className="h-5 w-5" />
               Generate Questions
