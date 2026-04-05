@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { LuPlus } from "react-icons/lu";
-import { goeyToast as toast } from "goey-toast";
+import { toast } from "../../utils/errorHandler";
 import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import Modal from "../../components/Modal";
 import CreateSessionForm from "../../components/CreateSessionForm";

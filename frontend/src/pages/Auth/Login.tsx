@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useContext, useState, type FC, type FormEvent } from "react";
-import { goeyToast as toast } from "goey-toast";
+import { toast } from "../../utils/errorHandler";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/Inputs";
 import { getErrorMessage } from "../../utils/errorHandler";

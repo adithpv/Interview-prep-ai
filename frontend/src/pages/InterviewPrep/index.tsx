@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import moment from "moment";
 import { AnimatePresence, motion } from "framer-motion";
-import { goeyToast as toast } from "goey-toast";
+import { toast } from "../../utils/errorHandler";
 import { LuCircleAlert, LuListCollapse } from "react-icons/lu";
 import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import RoleInfoHeader from "../../components/RoleInfoHeader";

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, type FC, type FormEvent } from "react";
-import { goeyToast as toast } from "goey-toast";
+import { toast } from "../../utils/errorHandler";
 import Input from "../../components/Inputs";
 import ProfilePicSelector from "../../components/ProfilePicSelector";
 import { API_PATHS } from "../../utils/apiPaths";
