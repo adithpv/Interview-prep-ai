@@ -24,7 +24,6 @@ app.use(serverConfigs.cors);
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 app.use(serverConfigs.generalLimiter);
-app.use("/uploads", express.static(path.join(__dirname, ENV.UPLOAD_DIR)));
 
 app.get("/", (_req, res) => {
     res.send("Backend is live! 🎉");

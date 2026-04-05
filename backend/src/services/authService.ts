@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { User } from "../models/userModel";
 import { generateTokens } from "../utils/generateToken";
 import { assertAuth, assertNotFound, assertConflict } from "../utils/appAssert";
+import cloudinary from "../config/cloudinary";
 
 export interface RegisterUserParams {
     email: string;
@@ -112,10 +113,21 @@ export const getUserProfileService = async (
 };
 
 export const uploadImageService = async (
-    filename: string,
-    protocol: string,
-    host: string
+    fileBuffer: Buffer,
+    originalName: string,
+    mimetype: string
 ): Promise<{ imageUrl: string }> => {
-    const imageUrl = `${protocol}://${host}/uploads/${filename}`;
-    return { imageUrl };
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            { folder: "profile_pictures" },
+            (error: any, result: any) => {
+                if (result) {
+                    resolve({ imageUrl: result.secure_url });
+                } else {
+                    reject(error);
+                }
+            }
+        );
+        require("stream").Readable.from(fileBuffer).pipe(stream);
+    });
 };

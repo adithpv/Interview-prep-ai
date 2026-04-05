@@ -81,9 +81,9 @@ export const uploadImage = catchAsync(async (req: Request, res: Response) => {
     assertFieldsExist({ file });
 
     const result = await uploadImageService(
-        file?.filename || "",
-        req.protocol,
-        req.get("host") || ""
+        file!.buffer,
+        file!.originalname,
+        file!.mimetype
     );
 
     res.status(HttpStatus.OK).json(result);
