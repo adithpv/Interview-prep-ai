@@ -9,6 +9,27 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+let csrfTokenPromise: Promise<string> | null = null;
+
+axiosInstance.interceptors.request.use(
+  async (config) => {
+    if (config.method && !["get", "head", "options"].includes(config.method.toLowerCase())) {
+      if (!axiosInstance.defaults.headers.common["x-csrf-token"]) {
+        if (!csrfTokenPromise) {
+          csrfTokenPromise = axios.get(`${BASE_URL}/api/csrf-token`, { withCredentials: true }).then(res => res.data.token);
+        }
+        const token = await csrfTokenPromise;
+        axiosInstance.defaults.headers.common["x-csrf-token"] = token;
+        config.headers["x-csrf-token"] = token;
+      } else {
+        config.headers["x-csrf-token"] = axiosInstance.defaults.headers.common["x-csrf-token"];
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {

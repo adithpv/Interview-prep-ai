@@ -21,9 +21,17 @@ const app = express();
 
 app.use(serverConfigs.helmet);
 app.use(serverConfigs.cors);
+import { generateCsrfToken, doubleCsrfProtection } from "./config/csrf";
+
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 app.use(serverConfigs.generalLimiter);
+
+app.get("/api/csrf-token", (req, res) => {
+    res.json({ token: generateCsrfToken(req, res) });
+});
+
+app.use(doubleCsrfProtection);
 
 app.get("/", (_req, res) => {
     res.send("Backend is live! 🎉");
