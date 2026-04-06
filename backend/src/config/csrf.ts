@@ -1,6 +1,8 @@
 import { doubleCsrf } from "csrf-csrf";
 import { ENV } from "../utils/env";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export const {
     invalidCsrfTokenError,
     generateCsrfToken,
@@ -10,11 +12,12 @@ export const {
     getSessionIdentifier: () => "session_csrf",
     cookieName: "x-csrf-token",
     cookieOptions: {
-        sameSite: ENV.IS_PROD ? "none" : "lax",
-        secure: ENV.IS_PROD,
+        sameSite: isProd ? "none" : "lax",
+        secure: isProd,
         httpOnly: true,
     },
     size: 64,
     ignoredMethods: ["GET", "HEAD", "OPTIONS"],
-    getCsrfTokenFromRequest: (req) => req.headers["x-csrf-token"] as string | undefined,
+    getCsrfTokenFromRequest: (req) =>
+        req.headers["x-csrf-token"] as string | undefined,
 });
