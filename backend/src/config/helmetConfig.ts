@@ -1,18 +1,19 @@
 import helmet from "helmet";
-import { ENV } from "../utils/env";
+
+const isProd = process.env.NODE_ENV === "production";
 
 // Helmet configuration for security headers
 export const helmetConfig = helmet({
     contentSecurityPolicy:
-        ENV.IS_PROD ?
+        isProd ?
             {
                 directives: {
                     defaultSrc: ["'self'"],
                     styleSrc: ["'self'", "'unsafe-inline'"],
                     scriptSrc: ["'self'"],
                     imgSrc: ["'self'", "data:", "https:"],
-                    connectSrc: ["'self'"],
-                    fontSrc: ["'self'"],
+                    connectSrc: ["'self'", "https:"],
+                    fontSrc: ["'self'", "https:"],
                     objectSrc: ["'none'"],
                     mediaSrc: ["'self'"],
                     frameSrc: ["'none'"],
@@ -22,7 +23,7 @@ export const helmetConfig = helmet({
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" },
     hsts:
-        ENV.IS_PROD ?
+        isProd ?
             {
                 maxAge: 31536000,
                 includeSubDomains: true,

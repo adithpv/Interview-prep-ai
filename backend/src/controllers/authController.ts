@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { catchAsync } from "../utils/catchAsync";
 import { assertFieldsExist } from "../utils/appAssert";
 import { HttpStatus } from "../utils/httpStatus";
 import { sendResponse } from "../utils/responseHandler";
+import { ENV } from "../utils/env";
 import { AuthenticatedRequest } from "../types";
 import {
     registerUserService,
@@ -11,7 +13,11 @@ import {
     uploadImageService,
 } from "../services/authService";
 
-const setTokensAsCookies = (res: Response, accessToken: string, refreshToken: string) => {
+const setTokensAsCookies = (
+    res: Response,
+    accessToken: string,
+    refreshToken: string,
+) => {
     const isProd = process.env.NODE_ENV === "production";
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
@@ -76,13 +82,13 @@ export const loginUser = catchAsync(async (req: Request, res: Response) => {
 
 export const getUserProfile = catchAsync(
     async (req: AuthenticatedRequest, res: Response) => {
-        const userId = req.params.id || req.user?._id;
+        const userId = req.user?._id?.toString();
         assertFieldsExist({ userId });
 
-        const result = await getUserProfileService(userId);
+        const result = await getUserProfileService(userId!);
 
         return sendResponse({ res, statusCode: HttpStatus.OK, data: result });
-    }
+    },
 );
 
 export const uploadImage = catchAsync(async (req: Request, res: Response) => {
@@ -92,35 +98,57 @@ export const uploadImage = catchAsync(async (req: Request, res: Response) => {
     const result = await uploadImageService(
         file!.buffer,
         file!.originalname,
-        file!.mimetype
+        file!.mimetype,
     );
 
     sendResponse({ res, statusCode: HttpStatus.OK, data: result });
 });
 
-export const refreshTokenController = catchAsync(async (req: Request, res: Response) => {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) {
-        return sendResponse({ res, statusCode: HttpStatus.UNAUTHORIZED, message: "No refresh token found" });
-    }
+export const refreshTokenController = catchAsync(
+    async (req: Request, res: Response) => {
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) {
+            return sendResponse({
+                res,
+                statusCode: HttpStatus.UNAUTHORIZED,
+                message: "No refresh token found",
+            });
+        }
 
-    try {
-        const decoded = require("jsonwebtoken").verify(refreshToken, process.env.JWT_REFRESH_SECRET || "refresh_fallback_secret") as { id: string };
-        const newAccessToken = require("jsonwebtoken").sign({ id: decoded.id }, process.env.JWT_SECRET || "", { expiresIn: "15m" });
-        
-        const isProd = process.env.NODE_ENV === "production";
-        res.cookie("accessToken", newAccessToken, {
-            httpOnly: true,
-            secure: isProd,
-            sameSite: isProd ? "none" : "lax",
-            maxAge: 15 * 60 * 1000,
-        });
+        try {
+            const decoded = jwt.verify(
+                refreshToken,
+                ENV.JWT_REFRESH_SECRET,
+            ) as { id: string };
 
-        sendResponse({ res, statusCode: HttpStatus.OK, message: "Token refreshed" });
-    } catch (e) {
-        return sendResponse({ res, statusCode: HttpStatus.UNAUTHORIZED, message: "Invalid refresh token" });
-    }
-});
+            const newAccessToken = jwt.sign(
+                { id: decoded.id },
+                ENV.JWT_SECRET,
+                { expiresIn: "15m" },
+            );
+
+            const isProd = process.env.NODE_ENV === "production";
+            res.cookie("accessToken", newAccessToken, {
+                httpOnly: true,
+                secure: isProd,
+                sameSite: isProd ? "none" : "lax",
+                maxAge: 15 * 60 * 1000,
+            });
+
+            sendResponse({
+                res,
+                statusCode: HttpStatus.OK,
+                message: "Token refreshed",
+            });
+        } catch (e) {
+            return sendResponse({
+                res,
+                statusCode: HttpStatus.UNAUTHORIZED,
+                message: "Invalid refresh token",
+            });
+        }
+    },
+);
 
 export const logoutUser = catchAsync(async (req: Request, res: Response) => {
     const isProd = process.env.NODE_ENV === "production";
@@ -137,5 +165,9 @@ export const logoutUser = catchAsync(async (req: Request, res: Response) => {
         expires: new Date(0),
     });
 
-    sendResponse({ res, statusCode: HttpStatus.OK, message: "Logged out successfully" });
+    sendResponse({
+        res,
+        statusCode: HttpStatus.OK,
+        message: "Logged out successfully",
+    });
 });
