@@ -4,7 +4,17 @@ import { ENV } from "../utils/env";
 import { helmetConfig } from "./helmetConfig";
 
 export const corsConfig = cors({
-    origin: ENV.NODE_ENV === "development" ? true : [ENV.ALLOWED_ORIGINS],
+    origin: (origin, callback) => {
+        if (ENV.NODE_ENV === "development") {
+            return callback(null, true);
+        }
+        const allowed = ENV.ALLOWED_ORIGINS.split(",").map((o) => o.trim());
+        if (!origin || allowed.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`CORS policy: origin ${origin} not allowed`));
+        }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
     credentials: true,

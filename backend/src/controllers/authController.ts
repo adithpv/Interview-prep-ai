@@ -16,13 +16,13 @@ const setTokensAsCookies = (res: Response, accessToken: string, refreshToken: st
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "strict" : "lax",
+        sameSite: isProd ? "none" : "lax",
         maxAge: 15 * 60 * 1000, // 15 mins
     });
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "strict" : "lax",
+        sameSite: isProd ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 };
@@ -112,7 +112,7 @@ export const refreshTokenController = catchAsync(async (req: Request, res: Respo
         res.cookie("accessToken", newAccessToken, {
             httpOnly: true,
             secure: isProd,
-            sameSite: isProd ? "strict" : "lax",
+            sameSite: isProd ? "none" : "lax",
             maxAge: 15 * 60 * 1000,
         });
 
@@ -127,13 +127,13 @@ export const logoutUser = catchAsync(async (req: Request, res: Response) => {
     res.cookie("accessToken", "", {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "strict" : "lax",
+        sameSite: isProd ? "none" : "lax",
         expires: new Date(0),
     });
     res.cookie("refreshToken", "", {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "strict" : "lax",
+        sameSite: isProd ? "none" : "lax",
         expires: new Date(0),
     });
 

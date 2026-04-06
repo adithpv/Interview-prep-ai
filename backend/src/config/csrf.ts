@@ -10,7 +10,7 @@ export const {
     getSessionIdentifier: () => "session_csrf",
     cookieName: "x-csrf-token",
     cookieOptions: {
-        sameSite: "strict",
+        sameSite: ENV.IS_PROD ? "none" : "lax",
         secure: ENV.IS_PROD,
         httpOnly: true,
     },
