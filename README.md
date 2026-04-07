@@ -1,158 +1,241 @@
-## Interview-prep AI App
+# Interview-Ready AI App
 
-A full-stack web app to help users prepare for technical interviews using AI-powered question generation, practice sessions, and user session management. This repository contains a TypeScript/Node backend and a React + Vite frontend.
+A full-stack web application to help users prepare for technical interviews using AI-powered question generation, timed practice sessions, and personalized session management.
 
-> **Note:** This project is under active development. Bug fixes and feature improvements are being implemented regularly. Some features may be in progress or subject to change.
+> **Note:** This project is under active development. Some features may be in progress or subject to change.
 
-## Table of contents
+---
 
--   Project overview
--   Screenshots
--   Features
--   Architecture
--   Routes (high-level)
--   Environment variables
--   Setup & run
--   Contributing
--   Where to look in the code
+## Table of Contents
 
-## Project overview
+- [Project Overview](#project-overview)
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [API Reference](#api-reference)
+- [Authentication Flow](#authentication-flow)
+- [Environment Variables](#environment-variables)
+- [Setup & Run](#setup--run)
 
-This project helps users prepare for technical interviews by:
+---
 
--   Managing users and authentication
--   Creating and storing interview questions
--   Creating practice sessions (timed/mock interviews)
--   Generating AI-driven question suggestions and answer previews
+## Project Overview
 
-The repository is split into two main folders:
+Interview-Ready AI App helps users prepare for technical interviews by:
 
--   `backend/` — TypeScript Node server (API, DB models, controllers, services)
--   `frontend/` — React + Vite app (UI, pages, components)
+- Creating and managing practice sessions
+- Generating AI-powered interview questions and concept explanations (via Google Gemini)
+- Pinning, noting, and reviewing questions per session
+- Secure user authentication with profile picture support
+
+The repo is split into two main folders:
+
+- `backend/` — TypeScript + Express API (controllers, services, Mongoose models, middlewares)
+- `frontend/` — React + Vite SPA (pages, components, Tailwind v4 styling)
+
+---
 
 ## Screenshots
 
 ### Landing Page
 
-The landing page provides an introduction to the application, featuring a clean and modern design that welcomes users and highlights the key features of the interview preparation platform.
-
 ![Landing Page](./images/homePage.png)
 
 ### Application Interface
-
-After logging in, users are presented with the main dashboard interface where they can manage their interview practice sessions, view questions, and access AI-powered features.
 
 ![Application Interface](./images/Interface.png)
 
 ### Learn More
 
-For users who want to dive deeper into the platform's capabilities, the Learn More section provides detailed information about advanced features, best practices, and tips for effective interview preparation.
-
 ![Learn More](./images/LearnMore.png)
+
+---
 
 ## Features
 
--   User authentication (signup, login, protected routes)
--   CRUD for questions (create, read, update, delete)
--   Create and manage interview practice sessions
--   AI-powered assistance (question generation / response previews)
--   File upload support (profile pictures or session attachments)
--   Middlewares: request logging, auth checking, error handling
+- **Authentication** — Secure signup/login with HTTPOnly cookie JWTs and automatic token refresh
+- **CSRF Protection** — Double-submit pattern via `csrf-csrf`
+- **Practice Sessions** — Create, view, and delete timed mock interview sessions
+- **Question Management** — Add questions to sessions, pin important ones, attach personal notes
+- **AI Assistance** — Generate interview questions and concept explanations via Gemini API
+- **Profile Pictures** — Upload and store images via Cloudinary
+- **Rate Limiting** — Per-route rate limiting on auth endpoints
+
+---
+
+## Tech Stack
+
+### Backend
+
+| Concern | Technology |
+|---|---|
+| Runtime | Node.js + TypeScript |
+| Framework | Express v5 |
+| Database | MongoDB (Mongoose v8) |
+| Auth | JWT (`jsonwebtoken`), `bcryptjs`, HTTPOnly cookies |
+| Security | `helmet`, `csrf-csrf`, `express-rate-limit`, `cors` |
+| AI | `@google/genai` (Google Gemini) |
+| File Uploads | `multer` (buffer) + Cloudinary |
+| Validation | Zod v4 |
+| Dev Tools | `ts-node-dev`, ESLint, Prettier |
+
+### Frontend
+
+| Concern | Technology |
+|---|---|
+| Framework | React v19 + TypeScript (Vite v6) |
+| Styling | TailwindCSS v4 (`@tailwindcss/vite`) |
+| Animations | Framer Motion v12 |
+| Routing | React Router DOM v7 |
+| HTTP | Axios (`withCredentials: true`) |
+| Notifications | `goey-toast` |
+| Icons | `react-icons` v5 |
+| Markdown | `react-markdown`, `remark-gfm`, `react-syntax-highlighter` |
+| Validation | Zod v4 |
+
+---
 
 ## Architecture
 
--   Backend: Express (TypeScript), controllers -> services -> models, with a utilities folder for common helpers and error handling.
--   Frontend: React + TypeScript (Vite) with a component-based structure. Pages for Landing, Auth, Dashboard, and Interview Prep.
+### Backend Structure
 
-## Routes (high-level)
+```
+backend/src/
+├── index.ts              # Server entry — middleware stack, routes, error handler
+├── config/
+│   ├── db.ts             # MongoDB connection with retry
+│   ├── serverConfig.ts   # helmet, cors, rate-limit configs
+│   ├── csrf.ts           # csrf-csrf double-submit setup
+│   └── cloudinary.ts     # Cloudinary SDK init
+├── controllers/          # Request handlers (auth, ai, questions, sessions)
+├── services/             # Business logic layer
+├── models/               # Mongoose schemas (User, Question, Session)
+├── middlewares/          # protect (JWT), requestLogger, validateRequest, upload
+├── routes/               # Route definitions
+├── schemas/              # Zod validation schemas
+├── types/                # Shared TypeScript types
+└── utils/                # env, AppError, catchAsync, errorHandler, responseHandler
+```
 
-The backend exposes a set of route groups. See `backend/src/routes/` for the exact implementations. Typical endpoints by group include:
+### Frontend Structure
 
--   /api/auth
+```
+frontend/src/
+├── App.tsx               # Router + GoeyToaster
+├── context/
+│   └── userContext.tsx   # Global user auth state
+├── pages/
+│   ├── LandingPage/
+│   ├── Auth/             # Login & Register forms
+│   ├── Home/             # Dashboard
+│   └── InterviewPrep/    # Active session page
+├── components/           # Reusable UI (Navbar, Modal, Drawer, QuestionCard, etc.)
+└── utils/
+    ├── axios.ts          # Axios instance with CSRF + 401 refresh interceptors
+    └── apiPaths.ts       # Centralized API path constants
+```
 
-    -   POST /signup — create a new user
-    -   POST /login — login and receive a JWT
-    -   GET /me — get current user (protected)
+---
 
--   /api/questions
+## API Reference
 
-    -   GET / — list questions
-    -   POST / — create a question (protected)
-    -   GET /:id — get question details
-    -   PUT /:id — update a question (protected)
-    -   DELETE /:id — delete a question (protected)
+### Auth — `/api/auth`
 
--   /api/sessions
-    -   GET / — list practice sessions (user-specific)
-    -   POST / — create a practice session (protected)
-    -   GET /:id — session details
-    -   PUT /:id — update session
-    -   DELETE /:id — remove session
+| Method | Path | Description | Auth |
+|---|---|---|---|
+| `POST` | `/register` | Create new user, sets cookies | — |
+| `POST` | `/login` | Login, sets cookies | — |
+| `GET` | `/profile` | Get current user profile | ✅ |
+| `POST` | `/logout` | Clear auth cookies | ✅ |
+| `POST` | `/refresh` | Rotate access token via refresh cookie | — |
+| `POST` | `/upload-image` | Upload profile picture to Cloudinary | — |
 
-There is also an AI-related controller/service used to generate question prompts and AI responses (see `backend/src/controllers/aiController.ts` and `backend/src/services/aiService.ts`). The AI endpoints may be embedded in other route groups or exposed under a dedicated path (inspect `src/routes` for exact paths).
+### Sessions — `/api/sessions`
 
-Note: The above list is a high-level overview. For exact route signatures and request/response shapes, open the corresponding files in `backend/src/routes` and `backend/src/controllers`.
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/create` | Create a new practice session |
+| `GET` | `/my-sessions` | List all sessions for current user |
+| `GET` | `/:id` | Get session details |
+| `DELETE` | `/:id` | Delete a session |
 
-## Environment variables
+### Questions — `/api/questions`
 
-Put environment variables in `backend/.env` (do not commit secrets). The code expects some common variables; verify exact names in `backend/src/utils/env.ts`. Typical variables used by this project:
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/add` | Add question to a session |
+| `PATCH` | `/:id/pin` | Pin or unpin a question |
+| `PATCH` | `/:id/note` | Update personal note on a question |
 
--   MONGO_URI — MongoDB connection string
--   PORT — server port (e.g. 4000)
--   JWT_SECRET — secret used to sign JSON Web Tokens
--   NODE_ENV — development | production
--   GEMINI_API_KEY — (if AI service uses Gemini Ai or change according to your api key)
+### AI — `/api/ai`
 
-## Setup & run
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/generate-questions` | Generate interview questions via Gemini |
+| `POST` | `/generate-explanation` | Generate concept explanation via Gemini |
 
-Quick start — run backend and frontend in two terminals.
+---
 
-1. Backend
+## Authentication Flow
+
+1. **Login/Register** → server sets two HTTPOnly cookies: `accessToken` (15 min) and `refreshToken` (7 days)
+2. **Requests** — axios sends cookies automatically (`withCredentials: true`); non-GET requests include an `x-csrf-token` header
+3. **Token Refresh** — on 401 response, axios interceptor calls `POST /api/auth/refresh`; if refresh fails, redirects to `/`
+4. **Logout** — server clears both cookies; frontend clears user context
+
+---
+
+## Environment Variables
+
+### Backend (`.env`)
+
+| Variable | Default | Required |
+|---|---|---|
+| `NODE_ENV` | `development` | — |
+| `PORT` | `5000` | — |
+| `MONGO_DB_URI` | — | ✅ |
+| `ALLOWED_ORIGINS` | `http://localhost:5173` | — |
+| `JWT_SECRET` | — | ✅ |
+| `JWT_REFRESH_SECRET` | *(fallback set)* | Recommended |
+| `GOOGLE_API_KEY` | — | ✅ |
+| `GOOGLE_AI_MODEL` | — | ✅ |
+| `CLOUDINARY_CLOUD_NAME` | `""` | For image uploads |
+| `CLOUDINARY_API_KEY` | `""` | For image uploads |
+| `CLOUDINARY_API_SECRET` | `""` | For image uploads |
+| `IS_PROD` | `false` | — |
+
+### Frontend (`.env.local`)
+
+| Variable | Purpose |
+|---|---|
+| `VITE_BASE_URL` | Backend API base URL (e.g. `http://localhost:5000`) |
+
+---
+
+## Setup & Run
+
+**Backend**
 
 ```bash
 cd backend
 npm install
-# Check package.json for the dev/start scripts (e.g. "dev" runs ts-node-dev or nodemon)
-npm run dev
+npm run dev        # starts on http://localhost:5000
 ```
 
-2. Frontend
+**Frontend**
 
 ```bash
 cd frontend
 npm install
-npm run dev
-# Open the URL shown by Vite (usually http://localhost:5173)
+npm run dev        # starts on http://localhost:5173
 ```
 
-Notes:
+**Other scripts**
 
--   If `npm run dev` doesn't exist for either package, inspect `package.json` for the appropriate start command (e.g. `start`, `serve`, `build`).
--   Ensure the backend `PORT` and frontend API base URL (if configured) match or set the frontend to proxy the backend.
-
-## Development tips
-
--   Backend API files to inspect and modify:
-
-    -   `backend/src/index.ts` — server entry
-    -   `backend/src/routes/*` — route registration
-    -   `backend/src/controllers/*` — request handlers
-    -   `backend/src/services/*` — business logic
-    -   `backend/src/models/*` — Mongoose models
-
--   Frontend files to inspect and modify:
-    -   `frontend/src/main.tsx` and `frontend/src/App.tsx` — app entry and routing
-    -   `frontend/src/pages/*` — page components
-    -   `frontend/src/components/*` — UI components
-    -   `frontend/src/utils/axios.ts` — central axios instance (adjust baseURL if needed)
-
-## Where to look for exact API details
-
--   Exact route handlers and HTTP methods: `backend/src/routes/`
--   Request/response shapes: `backend/src/controllers/` and `backend/src/types`
--   Auth middleware and token generation: `backend/src/middlewares/authMiddleware.ts` and `backend/src/utils/generateToken.ts`
-
-## Contributing
-
--   Fork the repo and open a PR with a clear description.
--   Keep API changes backward-compatible or document breaking changes.
+```bash
+npm run build       # production build
+npm run type-check  # TypeScript check (backend)
+npm run lint        # ESLint
+npm run format      # Prettier
+```
