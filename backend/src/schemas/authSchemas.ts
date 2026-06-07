@@ -24,6 +24,6 @@ export const registerSchema = z.object({
                 passwordRegex,
                 "Password must be at least 8 characters long and contain at least one letter and one number"
             ),
-        profileImageUrl: z.string().url("Invalid image URL").optional(),
+        profileImageUrl: z.string().url("Invalid image URL").optional().or(z.literal("")),
     }),
 });
