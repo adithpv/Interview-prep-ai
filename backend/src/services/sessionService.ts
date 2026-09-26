@@ -49,7 +49,7 @@ export const getSessionByIdService = async (
     success: boolean;
     session: any;
 }> => {
-    const { sessionId } = params;
+    const { sessionId, userId } = params;
 
     const session = await Session.findById(sessionId)
         .populate({
@@ -59,6 +59,40 @@ export const getSessionByIdService = async (
         .exec();
 
     assertNotFound(!!session, "Session");
+
+    assertAuth(
+        session!.user.toString() === userId.toString(),
+        "Not authorized to view this session"
+    );
+
+    return {
+        success: true,
+        session,
+    };
+};
+
+export const updateSessionService = async (
+    params: import("../types").UpdateSessionParams
+): Promise<{
+    success: boolean;
+    session: any;
+}> => {
+    const { sessionId, userId, role, experience, topicsToFocus, description } = params;
+
+    const session = await Session.findById(sessionId);
+    assertNotFound(session, "Session");
+
+    assertAuth(
+        session.user.toString() === userId.toString(),
+        "Not authorized to edit this session"
+    );
+
+    if (role !== undefined) session.role = role;
+    if (experience !== undefined) session.experience = experience;
+    if (topicsToFocus !== undefined) session.topicsToFocus = topicsToFocus;
+    if (description !== undefined) session.description = description;
+
+    await session.save();
 
     return {
         success: true,

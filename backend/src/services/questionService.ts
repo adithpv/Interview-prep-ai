@@ -25,22 +25,35 @@ export const addQuestionsToSessionService = async (
         "Not authorized to add questions to this session"
     );
 
-    const createdQuestions = await Question.insertMany(
-        questions.map((q: QuestionData) => ({
-            question: q.question,
-            session: sessionId,
-            answer: q.answer,
-            user: userId,
-        }))
-    );
+    const mongooseSession = await import("mongoose").then(m => m.default.startSession());
+    mongooseSession.startTransaction();
 
-    session.questions.push(...createdQuestions.map((q) => q._id as any));
-    await session.save();
+    try {
+        const createdQuestions = await Question.insertMany(
+            questions.map((q: QuestionData) => ({
+                question: q.question,
+                session: sessionId,
+                answer: q.answer,
+                user: userId,
+            })),
+            { session: mongooseSession }
+        );
 
-    return {
-        message: `${createdQuestions.length} questions added`,
-        questions: createdQuestions,
-    };
+        session.questions.push(...createdQuestions.map((q) => q._id as any));
+        await session.save({ session: mongooseSession });
+
+        await mongooseSession.commitTransaction();
+        mongooseSession.endSession();
+
+        return {
+            message: `${createdQuestions.length} questions added`,
+            questions: createdQuestions,
+        };
+    } catch (error) {
+        await mongooseSession.abortTransaction();
+        mongooseSession.endSession();
+        throw error;
+    }
 };
 
 export const togglePinQuestionService = async (

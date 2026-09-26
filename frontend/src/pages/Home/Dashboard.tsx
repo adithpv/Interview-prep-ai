@@ -16,6 +16,7 @@ import type { ISession } from "../../types";
 const Dashboard = () => {
   const navigate = useNavigate();
   const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [editSessionData, setEditSessionData] = useState<ISession | null>(null);
   const [session, setSession] = useState<ISession[]>([]);
   const [openDeleteAlert, setOpenDeleteAlert] = useState<{
     open: boolean;
@@ -88,6 +89,7 @@ const Dashboard = () => {
                   updatedAt ? moment(updatedAt).format("Do MMM YYYY") : ""
                 }
                 onSelect={() => navigate(`/interview-prep/${_id}`)}
+                onEdit={() => setEditSessionData(data)}
                 onDelete={() => setOpenDeleteAlert({ open: true, data })}
               />
             );
@@ -107,9 +109,34 @@ const Dashboard = () => {
         hideHeader
       >
         <div>
-          <CreateSessionForm />
+          <CreateSessionForm 
+            onSuccess={() => {
+              setOpenCreateModal(false);
+              fetchAllSessions();
+            }}
+          />
         </div>
       </Modal>
+
+      <Modal
+        isOpen={!!editSessionData}
+        onClose={() => setEditSessionData(null)}
+        hideHeader
+      >
+        <div>
+          {editSessionData && (
+            <CreateSessionForm 
+              initialData={editSessionData as any}
+              onSuccess={() => {
+                setEditSessionData(null);
+                fetchAllSessions();
+                toast.success("Session Updated Successfully");
+              }}
+            />
+          )}
+        </div>
+      </Modal>
+
       <Modal
         isOpen={openDeleteAlert?.open}
         onClose={() => {

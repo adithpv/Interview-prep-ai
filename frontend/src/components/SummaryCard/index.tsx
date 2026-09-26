@@ -1,5 +1,5 @@
 import { type FC } from "react";
-import { LuTrash2 } from "react-icons/lu";
+import { LuTrash2, LuSquarePen } from "react-icons/lu";
 import { getInitials } from "../../utils/helper";
 
 interface SummaryCardProps {
@@ -12,6 +12,7 @@ interface SummaryCardProps {
   description: string;
   lastUpdated: string;
   onSelect: () => void;
+  onEdit?: () => void;
   onDelete: () => void;
 }
 
@@ -25,6 +26,7 @@ const SummaryCard: FC<SummaryCardProps> = ({
   description,
   lastUpdated,
   onSelect,
+  onEdit,
   onDelete,
 }) => {
   const masteryPercentage = questions > 0 ? Math.round((masteredCount / questions) * 100) : 0;
@@ -41,19 +43,34 @@ const SummaryCard: FC<SummaryCardProps> = ({
         <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-white text-base font-semibold text-gray-800 shadow">
           {getInitials(role)}
         </div>
-        <div className="flex-1">
+        <div className="flex-1 pr-16">
           <h2 className="text-lg font-semibold text-gray-900">{role}</h2>
           <p className="text-sm text-gray-700">{topicsToFocus}</p>
         </div>
-        <button
-          className="absolute top-4 right-4 hidden items-center justify-center rounded-md border border-rose-200 bg-rose-50 p-2 text-rose-500 opacity-0 transition group-hover:flex group-hover:opacity-100 hover:bg-rose-100"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-        >
-          <LuTrash2 size={16} />
-        </button>
+        <div className="absolute top-4 right-4 hidden items-center gap-2 opacity-0 transition group-hover:flex group-hover:opacity-100">
+          {onEdit && (
+            <button
+              className="flex items-center justify-center rounded-md border border-gray-200 bg-gray-50 p-2 text-gray-500 hover:bg-gray-100"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              title="Edit Session"
+            >
+              <LuSquarePen size={16} />
+            </button>
+          )}
+          <button
+            className="flex items-center justify-center rounded-md border border-rose-200 bg-rose-50 p-2 text-rose-500 hover:bg-rose-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            title="Delete Session"
+          >
+            <LuTrash2 size={16} />
+          </button>
+        </div>
       </div>
       <div className="px-5 pb-5">
         <div className="mt-4 flex flex-wrap gap-2">

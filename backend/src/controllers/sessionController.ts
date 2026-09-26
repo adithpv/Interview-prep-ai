@@ -8,6 +8,7 @@ import {
     createSessionService,
     getMySessionsService,
     getSessionByIdService,
+    updateSessionService,
     deleteSessionService,
 } from "../services/sessionService";
 
@@ -45,9 +46,13 @@ export const getMySessions = catchAsync(
 export const getSessionById = catchAsync(
     async (req: AuthenticatedRequest, res: Response) => {
         const sessionId = req.params.id;
+        const userId = req.user._id;
         assertFieldsExist({ sessionId });
 
-        const result = await getSessionByIdService({ sessionId });
+        const result = await getSessionByIdService({ 
+            sessionId,
+            userId: userId.toString()
+        });
 
         sendResponse({ res, statusCode: HttpStatus.OK, data: result });
     }
@@ -63,6 +68,27 @@ export const deleteSession = catchAsync(
         const result = await deleteSessionService({
             sessionId,
             userId: userId.toString(),
+        });
+
+        sendResponse({ res, statusCode: HttpStatus.OK, data: result });
+    }
+);
+
+export const updateSession = catchAsync(
+    async (req: AuthenticatedRequest, res: Response) => {
+        const sessionId = req.params.id;
+        const userId = req.user._id;
+        const { role, experience, topicsToFocus, description } = req.body;
+
+        assertFieldsExist({ sessionId });
+
+        const result = await updateSessionService({
+            sessionId,
+            userId: userId.toString(),
+            role,
+            experience,
+            topicsToFocus,
+            description,
         });
 
         sendResponse({ res, statusCode: HttpStatus.OK, data: result });

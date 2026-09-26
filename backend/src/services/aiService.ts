@@ -46,12 +46,15 @@ export const generateQuestionsService = async (
 };
 
 import { ConceptCache } from "../models/conceptCacheModel";
+import crypto from "crypto";
 
 export const generateConceptExplanationsService = async (
     question: string,
 ): Promise<{ title: string; explanation: string }> => {
+    const questionHash = crypto.createHash("sha256").update(question.trim()).digest("hex");
+
     // Check cache first
-    const cached = await ConceptCache.findOne({ question: question.trim() });
+    const cached = await ConceptCache.findOne({ questionHash });
     if (cached) {
         try {
             return JSON.parse(cached.explanation);
@@ -77,8 +80,8 @@ export const generateConceptExplanationsService = async (
     try {
         // Save stringified parsed data to cache (best effort)
         await ConceptCache.updateOne(
-            { question: question.trim() },
-            { $set: { explanation: JSON.stringify(parsedData) } },
+            { questionHash },
+            { $set: { question: question.trim(), explanation: JSON.stringify(parsedData) } },
             { upsert: true }
         );
     } catch (e) {

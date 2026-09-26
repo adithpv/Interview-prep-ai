@@ -49,7 +49,7 @@ const SessionSchema: Schema<ISession> = new Schema(
     }
 );
 
-SessionSchema.index({ user: 1 });
+SessionSchema.index({ user: 1, createdAt: -1 });
 
 export const Session: Model<ISession> =
     mongoose.models.Session ||
