@@ -54,13 +54,12 @@ The repo is split into two main folders:
 
 ## Features
 
-- **Authentication** — Secure signup/login with HTTPOnly cookie JWTs and automatic token refresh
-- **CSRF Protection** — Double-submit pattern via `csrf-csrf`
-- **Practice Sessions** — Create, view, and delete timed mock interview sessions
-- **Question Management** — Add questions to sessions, pin important ones, attach personal notes
-- **AI Assistance** — Generate interview questions and concept explanations via Gemini API
-- **Profile Pictures** — Upload and store images via Cloudinary
-- **Rate Limiting** — Per-route rate limiting on auth endpoints
+- **Authentication** — Secure signup/login with HTTPOnly cookie JWTs, active session revocation on token reuse, and automatic token refresh.
+- **Security & Validation** — Double-submit CSRF protection (`csrf-csrf`), strictly typed request validation via Zod, and full IDOR isolation across all tenants.
+- **Interactive Study Hub** — Master questions with a visual progress bar, filter by "Pinned" or "Mastered" tabs, and reset session progress instantly.
+- **AI Assistance & Caching** — Generate interview questions and concept explanations via Gemini API. Responses are cached via SHA-256 for performance.
+- **Transactions & Error Handling** — MongoDB transactions for atomic inserts, global error normalization across all environments.
+- **Automated Testing** — 20+ Vitest test suites covering core services, authentication flow, and AI retry logic.
 
 ---
 
@@ -78,7 +77,7 @@ The repo is split into two main folders:
 | AI | `@google/genai` (Google Gemini) |
 | File Uploads | `multer` (buffer) + Cloudinary |
 | Validation | Zod v4 |
-| Dev Tools | `ts-node-dev`, ESLint, Prettier |
+| Dev Tools | `ts-node-dev`, ESLint, Prettier, Vitest |
 
 ### Frontend
 
@@ -158,6 +157,8 @@ frontend/src/
 | `POST` | `/create` | Create a new practice session |
 | `GET` | `/my-sessions` | List all sessions for current user |
 | `GET` | `/:id` | Get session details |
+| `PATCH` | `/:id` | Update session details |
+| `POST` | `/:id/reset-progress` | Reset session mastery |
 | `DELETE` | `/:id` | Delete a session |
 
 ### Questions — `/api/questions`
@@ -167,6 +168,8 @@ frontend/src/
 | `POST` | `/add` | Add question to a session |
 | `PATCH` | `/:id/pin` | Pin or unpin a question |
 | `PATCH` | `/:id/note` | Update personal note on a question |
+| `PATCH` | `/:id/status` | Mark question as mastered/learning |
+| `DELETE`| `/:id` | Delete question from session |
 
 ### AI — `/api/ai`
 
