@@ -15,12 +15,6 @@ export const generateQuestions = catchAsync(
         res: Response<GeneratedQAItem[]>
     ) => {
         const { role, experience, topicsToFocus, numberOfQuestions } = req.body;
-        assertFieldsExist({
-            role,
-            experience,
-            topicsToFocus,
-            numberOfQuestions,
-        });
 
         const data = await generateQuestionsService({
             role,
@@ -36,7 +30,6 @@ export const generateQuestions = catchAsync(
 export const generateConceptExplanations = catchAsync(
     async (req: Request, res: Response) => {
         const { question } = req.body;
-        assertFieldsExist({ question });
 
         const data = await generateConceptExplanationsService(question);
 

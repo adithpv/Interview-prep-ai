@@ -88,6 +88,21 @@ const InterviewPrep = () => {
     }
   };
 
+  
+  const resetSessionProgress = async () => {
+    if (!window.confirm("Reset all questions in this session back to 'Learning'? Your notes and pinned questions will remain intact.")) return;
+    
+    try {
+      const response = await axiosInstance.post(`/api/sessions/${id}/reset-progress`);
+      if (response.data) {
+        toast.success("Session progress reset successfully!");
+        fetchSessionDetailsById();
+      }
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    }
+  };
+
   const toggleQuestionStatus = async (questionId: string, currentStatus?: string) => {
     try {
       const newStatus = currentStatus === 'mastered' ? 'learning' : 'mastered';
@@ -191,6 +206,15 @@ const InterviewPrep = () => {
             />
             Hide Mastered
           </label>
+          
+          {(sessionData?.questions?.some(q => q.status === 'mastered')) && (
+            <button
+              onClick={resetSessionProgress}
+              className="ml-4 flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800"
+            >
+              🔄 Reset Progress
+            </button>
+          )}
         </div>
         <div className="mt-5 mb-10 grid grid-cols-12 gap-4">
           <div
@@ -215,7 +239,7 @@ const InterviewPrep = () => {
                       </h3>
                       <p className="text-sm text-gray-500 max-w-sm">
                         {sessionData?.questions?.length 
-                          ? "You've completed all visible questions. Uncheck 'Hide Mastered' to review, or generate more below." 
+                          ? <div><p className="mb-4">You've completed all visible questions. You can uncheck 'Hide Mastered' to review, generate more questions, or restart the session.</p><button onClick={resetSessionProgress} className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">🔄 Reset Progress & Practice Again</button></div> 
                           : "Click 'Load More' below to generate AI interview questions tailored to this role."}
                       </p>
                     </motion.div>

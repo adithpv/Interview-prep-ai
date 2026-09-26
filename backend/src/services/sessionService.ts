@@ -121,3 +121,21 @@ export const deleteSessionService = async (
         message: "Session deleted successfully",
     };
 };
+
+export const resetSessionProgressService = async (
+    params: { sessionId: string; userId: string }
+): Promise<{ success: boolean; message: string }> => {
+    const { sessionId, userId } = params;
+
+    const session = await Session.findById(sessionId);
+    assertNotFound(session, "Session");
+
+    assertAuth(session.user.toString() === userId, "reset this session's progress");
+
+    await Question.updateMany(
+        { session: sessionId, user: userId, status: 'mastered' },
+        { $set: { status: 'learning' } }
+    );
+
+    return { success: true, message: "Session progress reset successfully" };
+};

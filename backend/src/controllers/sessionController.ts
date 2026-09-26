@@ -10,6 +10,7 @@ import {
     getSessionByIdService,
     updateSessionService,
     deleteSessionService,
+    resetSessionProgressService
 } from "../services/sessionService";
 
 export const createSession = catchAsync(
@@ -86,6 +87,20 @@ export const updateSession = catchAsync(
             experience,
             topicsToFocus,
             description,
+        });
+
+        sendResponse({ res, statusCode: HttpStatus.OK, data: result });
+    }
+);
+
+export const resetSessionProgress = catchAsync(
+    async (req: AuthenticatedRequest, res: Response) => {
+        const sessionId = req.params.id;
+        const userId = req.user._id;
+
+        const result = await resetSessionProgressService({
+            sessionId,
+            userId: userId.toString(),
         });
 
         sendResponse({ res, statusCode: HttpStatus.OK, data: result });

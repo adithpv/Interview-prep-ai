@@ -6,6 +6,7 @@ import {
     getMySessions,
     getSessionById,
     updateSession,
+    resetSessionProgress,
 } from "../controllers/sessionController";
 
 import { validateRequest } from "../middlewares/validateRequest";
@@ -17,6 +18,7 @@ router.post("/create", protect, validateRequest(createSessionSchema), createSess
 router.get("/my-sessions", protect, getMySessions);
 router.get("/:id", protect, getSessionById);
 router.patch("/:id", protect, validateRequest(updateSessionSchema), updateSession);
+router.post("/:id/reset-progress", protect, resetSessionProgress);
 router.delete("/:id", protect, deleteSession);
 
 export default router;

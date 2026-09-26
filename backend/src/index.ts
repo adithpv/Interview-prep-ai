@@ -8,10 +8,8 @@ import { serverConfigs } from "./config/serverConfig";
 import authRoutes from "./routes/authRoutes";
 import sessionRoutes from "./routes/sessionRoutes";
 import questionRoutes from "./routes/questionRoutes";
-import {
-  generateQuestions,
-  generateConceptExplanations,
-} from "./controllers/aiController";
+import aiRoutes from "./routes/aiRoutes";
+import { NotFoundException } from "./utils/AppError";
 import { globalErrorHandler } from "./utils/errorHandler";
 import { requestLogger } from "./middlewares/requestLogger";
 import { requestIdMiddleware } from "./middlewares/requestId";
@@ -43,8 +41,11 @@ app.use(requestLogger);
 app.use("/api/auth", serverConfigs.authLimiter, authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/questions", questionRoutes);
-app.use("/api/ai/generate-questions", protect, serverConfigs.generationLimiter, generateQuestions);
-app.use("/api/ai/generate-explanation", protect, serverConfigs.generationLimiter, generateConceptExplanations);
+app.use("/api/ai", aiRoutes);
+
+app.use((req, res, next) => {
+  next(new NotFoundException(`Route ${req.method} ${req.originalUrl} not found`));
+});
 
 app.use(globalErrorHandler);
 
