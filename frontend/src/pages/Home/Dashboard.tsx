@@ -63,38 +63,60 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="container mx-auto pt-4 pb-4">
-        <div className="grid grid-cols-1 gap-4 px-4 pt-1 pb-4 md:grid-cols-3 md:gap-7 md:px-0">
-          {session?.map((data, idx) => {
-            const {
-              _id,
-              role = "",
-              topicsToFocus = "",
-              experience = "-",
-              questions = [],
-              description = "",
-              updatedAt,
-            } = data || {};
+        {session.length === 0 ? (
+          <div className="flex flex-col items-center justify-center px-4 py-24 text-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-50 text-4xl mb-6">
+              🎯
+            </div>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+              No Interview Sessions Yet
+            </h2>
+            <p className="max-w-md text-sm text-gray-500 mb-6">
+              Create your first session to generate AI-powered interview questions 
+              tailored to your target role and experience level.
+            </p>
+            <button
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#ff9324] to-[#e99a4b] px-7 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:shadow-orange-200"
+              onClick={() => setOpenCreateModal(true)}
+            >
+              <LuPlus className="text-lg" />
+              Create Your First Session
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 px-4 pt-1 pb-4 md:grid-cols-3 md:gap-7 md:px-0">
+            {session?.map((data, idx) => {
+              const {
+                _id,
+                role = "",
+                topicsToFocus = "",
+                experience = "-",
+                questions = [],
+                description = "",
+                updatedAt,
+              } = data || {};
 
-            return (
-              <SummaryCard
-                key={_id || idx}
-                colors={CARD_BG[idx % CARD_BG.length]}
-                role={role}
-                topicsToFocus={topicsToFocus}
-                experience={experience}
-                questions={questions.length || 0}
-                masteredCount={questions.filter(q => (q as any).status === 'mastered').length}
-                description={description}
-                lastUpdated={
-                  updatedAt ? moment(updatedAt).format("Do MMM YYYY") : ""
-                }
-                onSelect={() => navigate(`/interview-prep/${_id}`)}
-                onEdit={() => setEditSessionData(data)}
-                onDelete={() => setOpenDeleteAlert({ open: true, data })}
-              />
-            );
-          })}
-        </div>
+              return (
+                <SummaryCard
+                  key={_id || idx}
+                  colors={CARD_BG[idx % CARD_BG.length]}
+                  role={role}
+                  topicsToFocus={topicsToFocus}
+                  experience={experience}
+                  questions={questions.length || 0}
+                  masteredCount={questions.filter(q => (q as any).status === 'mastered').length}
+                  description={description}
+                  lastUpdated={
+                    updatedAt ? moment(updatedAt).format("Do MMM YYYY") : ""
+                  }
+                  onSelect={() => navigate(`/interview-prep/${_id}`)}
+                  onEdit={() => setEditSessionData(data)}
+                  onDelete={() => setOpenDeleteAlert({ open: true, data })}
+                />
+              );
+            })}
+          </div>
+        )}
         <button
           className="fixed right-10 bottom-10 flex h-12 cursor-pointer items-center justify-center gap-3 rounded-full bg-linear-to-r from-[#ff9324] to-[#e99a4b] px-7 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black hover:text-white hover:shadow-2xl hover:shadow-orange-300 md:right-20 md:bottom-20 md:h-12"
           onClick={() => setOpenCreateModal(true)}

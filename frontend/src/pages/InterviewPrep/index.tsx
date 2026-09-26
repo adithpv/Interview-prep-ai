@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import moment from "moment";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "../../utils/errorHandler";
-import { LuCircleAlert, LuListCollapse } from "react-icons/lu";
+import { LuCircleAlert, LuListCollapse, LuArrowLeft } from "react-icons/lu";
 import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import RoleInfoHeader from "../../components/RoleInfoHeader";
 import SpinnerLoader from "../../components/SpinnerLoader";
@@ -18,6 +18,7 @@ import type { ISession, IAIExplanation } from "../../types";
 
 const InterviewPrep = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
+  const navigate = useNavigate();
   const [sessionData, setSessionData] = useState<ISession | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [openLearnMoreDrawer, setOpenLearnMoreDrawer] = useState(false);
@@ -157,6 +158,15 @@ const InterviewPrep = () => {
 
   return (
     <DashboardLayout>
+      <div className="container mx-auto px-4 pt-3 md:px-0">
+        <button
+          className="mb-3 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+          onClick={() => navigate("/dashboard")}
+        >
+          <LuArrowLeft size={16} />
+          Back to Dashboard
+        </button>
+      </div>
       <RoleInfoHeader
         role={sessionData?.role || ""}
         topicsToFocus={sessionData?.topicsToFocus || ""}
