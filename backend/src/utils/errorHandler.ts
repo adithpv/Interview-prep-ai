@@ -31,21 +31,29 @@ const handleJWTError = (): AppError =>
 const handleJWTExpiredError = (): AppError =>
     new UnauthorizedException("Your token has expired! Please log in again.");
 
-const sendErrorDev = (err: AppError, res: Response) => {
+const sendErrorDev = (err: AppError, req: Request, res: Response) => {
     res.status(err.statusCode).json({
-        status: err.status,
-        error: err,
-        message: err.message,
-        stack: err.stack,
+        success: false,
+        error: {
+            code: err.name,
+            message: err.message,
+            stack: err.stack,
+            details: err
+        },
+        requestId: (req as any).requestId,
     });
 };
 
-const sendErrorProd = (err: AppError, res: Response) => {
+const sendErrorProd = (err: AppError, req: Request, res: Response) => {
     // Operational, trusted error: send message to client
     if (err.isOperational) {
         res.status(err.statusCode).json({
-            status: err.status,
-            message: err.message,
+            success: false,
+            error: {
+                code: err.name || 'API_ERROR',
+                message: err.message,
+            },
+            requestId: (req as any).requestId,
         });
     }
     // Programming or other unknown error: don't leak error details
@@ -54,8 +62,12 @@ const sendErrorProd = (err: AppError, res: Response) => {
         console.error("ERROR 💥", err);
         // 2) Send generic message
         res.status(500).json({
-            status: "error",
-            message: "Something went very wrong!",
+            success: false,
+            error: {
+                code: 'INTERNAL_SERVER_ERROR',
+                message: "Something went very wrong!",
+            },
+            requestId: (req as any).requestId,
         });
     }
 };
@@ -73,7 +85,7 @@ export const globalErrorHandler = (
     err.status = err.status || "error";
 
     if (process.env.NODE_ENV === "development") {
-        sendErrorDev(err, res);
+        sendErrorDev(err, req, res);
     } else if (process.env.NODE_ENV === "production") {
         let error = { ...err };
         error.message = err.message;
@@ -88,6 +100,6 @@ export const globalErrorHandler = (
         if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
         if (error.code === "EBADCSRFTOKEN") error = handleCSRFError();
 
-        sendErrorProd(error, res);
+        sendErrorProd(error, req, res);
     }
 };

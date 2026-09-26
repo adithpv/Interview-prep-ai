@@ -9,8 +9,9 @@ export const requestLogger = async (
     const method = chalk.bold.green(req.method.padEnd(6));
     const url = chalk.blueBright(req.originalUrl);
     const time = chalk.gray(new Date().toLocaleTimeString());
+    const requestId = (req as any).requestId ? chalk.magenta(`[${(req as any).requestId}]`) : "";
 
-    console.log(`${time} ${method} → ${url}`);
+    console.log(`${time} ${requestId} ${method} → ${url}`);
 
     next();
 };

@@ -14,6 +14,7 @@ import {
 } from "./controllers/aiController";
 import { globalErrorHandler } from "./utils/errorHandler";
 import { requestLogger } from "./middlewares/requestLogger";
+import { requestIdMiddleware } from "./middlewares/requestId";
 import { protect } from "./middlewares/authMiddleware";
 import { generateCsrfToken, doubleCsrfProtection } from "./config/csrf";
 
@@ -21,6 +22,7 @@ const app = express();
 
 app.use(serverConfigs.helmet);
 app.use(serverConfigs.cors);
+app.use(requestIdMiddleware);
 
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
@@ -41,8 +43,8 @@ app.use(requestLogger);
 app.use("/api/auth", serverConfigs.authLimiter, authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/questions", questionRoutes);
-app.use("/api/ai/generate-questions", protect, generateQuestions);
-app.use("/api/ai/generate-explanation", protect, generateConceptExplanations);
+app.use("/api/ai/generate-questions", protect, serverConfigs.generationLimiter, generateQuestions);
+app.use("/api/ai/generate-explanation", protect, serverConfigs.generationLimiter, generateConceptExplanations);
 
 app.use(globalErrorHandler);
 

@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { User } from "../models/userModel";
+import { UserSession } from "../models/userSessionModel";
 import { generateTokens } from "../utils/generateToken";
 import { assertAuth, assertNotFound, assertConflict } from "../utils/appAssert";
 import cloudinary from "../config/cloudinary";
@@ -9,8 +11,28 @@ import {
     UserProfile,
 } from "../types";
 
+export const hashToken = (token: string) => {
+    return crypto.createHash("sha256").update(token).digest("hex");
+};
+
+export const createAuthSession = async (userId: string, userAgent?: string, ipAddress?: string) => {
+    const { accessToken, refreshToken } = generateTokens(userId);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+
+    await UserSession.create({
+        user: userId,
+        refreshTokenHash: hashToken(refreshToken),
+        userAgent,
+        ipAddress,
+        expiresAt,
+    });
+
+    return { accessToken, refreshToken };
+};
+
 export const registerUserService = async (
-    params: RegisterUserParams
+    params: RegisterUserParams & { userAgent?: string; ipAddress?: string }
 ): Promise<{
     message: string;
     id: string;
@@ -20,7 +42,7 @@ export const registerUserService = async (
     accessToken: string;
     refreshToken: string;
 }> => {
-    const { email, password, name, profileImageUrl } = params;
+    const { email, password, name, profileImageUrl, userAgent, ipAddress } = params;
 
     const userExist = await User.findOne({ email });
     assertConflict(!userExist, "User already exists");
@@ -33,7 +55,7 @@ export const registerUserService = async (
         profileImageUrl,
     });
 
-    const { accessToken, refreshToken } = generateTokens(user!._id.toString());
+    const { accessToken, refreshToken } = await createAuthSession(user._id.toString(), userAgent, ipAddress);
 
     return {
         message: "User registered successfully",
@@ -47,7 +69,7 @@ export const registerUserService = async (
 };
 
 export const loginUserService = async (
-    params: LoginUserParams
+    params: LoginUserParams & { userAgent?: string; ipAddress?: string }
 ): Promise<{
     message: string;
     id: string;
@@ -57,7 +79,7 @@ export const loginUserService = async (
     accessToken: string;
     refreshToken: string;
 }> => {
-    const { email, password } = params;
+    const { email, password, userAgent, ipAddress } = params;
 
     const user = await User.findOne({ email });
     assertAuth(!!user, "Invalid credentials");
@@ -65,7 +87,7 @@ export const loginUserService = async (
     const isPasswordValid = await bcrypt.compare(password, user!.password);
     assertAuth(isPasswordValid, "Invalid credentials");
 
-    const { accessToken, refreshToken } = generateTokens(user!._id.toString());
+    const { accessToken, refreshToken } = await createAuthSession(user!._id.toString(), userAgent, ipAddress);
 
     return {
         message: "Login successful",

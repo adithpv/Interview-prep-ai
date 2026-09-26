@@ -2,7 +2,7 @@ import { Session } from "../models/sessionModel";
 import { User } from "../models/userModel";
 import { Question } from "../models/questionModel";
 import { assertNotFound, assertAuth } from "../utils/appAssert";
-import { InternalServerErrorException } from "../utils/AppError";
+import { sessionRepository } from "../repositories/sessionRepository";
 import {
     CreateSessionParams,
     GetSessionByIdParams,
@@ -18,27 +18,16 @@ export const createSessionService = async (
     const { role, experience, topicsToFocus, description, questions, userId } =
         params;
 
-    const session = await Session.create({
-        user: userId,
-        role,
-        experience,
-        topicsToFocus,
-        description,
-    });
-
-    const questionDocs = await Promise.all(
-        questions.map(async (q) => {
-            return await Question.create({
-                user: userId,
-                session: session._id,
-                question: q.question,
-                answer: q.answer,
-            });
-        })
+    const session = await sessionRepository.createSessionWithQuestions(
+        {
+            user: userId as any,
+            role,
+            experience,
+            topicsToFocus,
+            description,
+        },
+        questions
     );
-
-    session.questions = questionDocs.map((q) => q._id as any);
-    await session.save();
 
     return {
         success: true,
@@ -92,8 +81,7 @@ export const deleteSessionService = async (
         "Not authorized to delete this session"
     );
 
-    await Question.deleteMany({ session: session._id });
-    await session.deleteOne();
+    await sessionRepository.deleteSessionAndQuestions(sessionId);
 
     return {
         message: "Session deleted successfully",

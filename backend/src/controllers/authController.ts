@@ -42,6 +42,8 @@ export const registerUser = catchAsync(async (req: Request, res: Response) => {
         password,
         name,
         profileImageUrl,
+        userAgent: req.headers["user-agent"],
+        ipAddress: req.ip,
     });
 
     setTokensAsCookies(res, result.accessToken, result.refreshToken);
@@ -63,7 +65,12 @@ export const loginUser = catchAsync(async (req: Request, res: Response) => {
     const { email, password } = req.body;
     assertFieldsExist({ email, password });
 
-    const result = await loginUserService({ email, password });
+    const result = await loginUserService({ 
+        email, 
+        password,
+        userAgent: req.headers["user-agent"],
+        ipAddress: req.ip,
+    });
 
     setTokensAsCookies(res, result.accessToken, result.refreshToken);
 
@@ -104,6 +111,9 @@ export const uploadImage = catchAsync(async (req: Request, res: Response) => {
     sendResponse({ res, statusCode: HttpStatus.OK, data: result });
 });
 
+import { UserSession } from "../models/userSessionModel";
+import { hashToken, createAuthSession } from "../services/authService";
+
 export const refreshTokenController = catchAsync(
     async (req: Request, res: Response) => {
         const refreshToken = req.cookies.refreshToken;
@@ -121,19 +131,34 @@ export const refreshTokenController = catchAsync(
                 ENV.JWT_REFRESH_SECRET,
             ) as { id: string };
 
-            const newAccessToken = jwt.sign(
-                { id: decoded.id },
-                ENV.JWT_SECRET,
-                { expiresIn: "15m" },
+            const hashedToken = hashToken(refreshToken);
+            const session = await UserSession.findOne({ 
+                user: decoded.id, 
+                refreshTokenHash: hashedToken 
+            });
+
+            if (!session) {
+                // Token reuse detected or session revoked!
+                // Revoke all sessions for this user for security
+                await UserSession.deleteMany({ user: decoded.id });
+                return sendResponse({
+                    res,
+                    statusCode: HttpStatus.UNAUTHORIZED,
+                    message: "Invalid refresh token. Sessions revoked.",
+                });
+            }
+
+            // Delete the old session (Rotate)
+            await session.deleteOne();
+
+            // Create new tokens and session
+            const newTokens = await createAuthSession(
+                decoded.id, 
+                req.headers["user-agent"], 
+                req.ip
             );
 
-            const isProd = process.env.NODE_ENV === "production";
-            res.cookie("accessToken", newAccessToken, {
-                httpOnly: true,
-                secure: isProd,
-                sameSite: isProd ? "none" : "lax",
-                maxAge: 15 * 60 * 1000,
-            });
+            setTokensAsCookies(res, newTokens.accessToken, newTokens.refreshToken);
 
             sendResponse({
                 res,
@@ -151,6 +176,18 @@ export const refreshTokenController = catchAsync(
 );
 
 export const logoutUser = catchAsync(async (req: Request, res: Response) => {
+    const refreshToken = req.cookies.refreshToken;
+    
+    if (refreshToken) {
+        try {
+            const decoded = jwt.verify(refreshToken, ENV.JWT_REFRESH_SECRET) as { id: string };
+            const hashedToken = hashToken(refreshToken);
+            await UserSession.deleteOne({ user: decoded.id, refreshTokenHash: hashedToken });
+        } catch (e) {
+            // ignore if already expired or invalid
+        }
+    }
+
     const isProd = process.env.NODE_ENV === "production";
     res.cookie("accessToken", "", {
         httpOnly: true,

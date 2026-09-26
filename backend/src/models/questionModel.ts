@@ -46,6 +46,9 @@ const QuestionSchema: Schema<IQuestion> = new Schema(
     }
 );
 
+QuestionSchema.index({ session: 1 });
+QuestionSchema.index({ user: 1 });
+
 export const Question: Model<IQuestion> =
     mongoose.models.Question ||
     mongoose.model<IQuestion>("Question", QuestionSchema);

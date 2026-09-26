@@ -1,5 +1,5 @@
 import cors from "cors";
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { ENV } from "../utils/env";
 import { helmetConfig } from "./helmetConfig";
 
@@ -43,6 +43,12 @@ export const generationLimiter = rateLimit({
     message: {
         error: "You have exceeded the maximum of 10 AI generations per day for free tier users.",
     },
+    keyGenerator: (req: any, res: any) => {
+        if (req.user && req.user._id) {
+            return req.user._id.toString();
+        }
+        return ipKeyGenerator(req, res);
+    }
 });
 
 export const serverConfigs = {

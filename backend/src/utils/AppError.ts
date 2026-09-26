@@ -50,3 +50,9 @@ export class InternalServerErrorException extends AppError {
         super(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
+
+export class ServiceUnavailableException extends AppError {
+    constructor(message: string = "Service Unavailable") {
+        super(message, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+}
