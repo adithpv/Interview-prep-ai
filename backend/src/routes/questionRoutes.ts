@@ -5,6 +5,7 @@ import {
     togglePinQuestion,
     updateQuestionNote,
     updateQuestionStatus,
+    deleteQuestion,
 } from "../controllers/questionController";
 
 import { serverConfigs } from "../config/serverConfig";
@@ -15,5 +16,6 @@ router.post("/add", protect, serverConfigs.generationLimiter, addQuestionsToSess
 router.post("/:id/pin", protect, togglePinQuestion);
 router.post("/:id/note", protect, updateQuestionNote);
 router.patch("/:id/status", protect, updateQuestionStatus);
+router.delete("/:id", protect, deleteQuestion);
 
 export default router;

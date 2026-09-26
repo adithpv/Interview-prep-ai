@@ -117,3 +117,27 @@ export const updateQuestionStatusService = async (
         question,
     };
 };
+
+export const deleteQuestionService = async (
+    params: { questionId: string; userId: string }
+): Promise<{ message: string }> => {
+    const { questionId, userId } = params;
+
+    const question = await Question.findById(questionId);
+    assertNotFound(question, "Question");
+
+    assertAuth(
+        question.user.toString() === userId,
+        "Not authorized to delete this question"
+    );
+
+    // Remove from the parent session
+    await Session.updateOne(
+        { _id: question.session },
+        { $pull: { questions: question._id } }
+    );
+
+    await question.deleteOne();
+
+    return { message: "Question deleted successfully" };
+};

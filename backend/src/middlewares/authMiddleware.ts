@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { User } from "../models/userModel";
+
 import { ENV } from "../utils/env";
 import { catchAsync } from "../utils/catchAsync";
 import { UnauthorizedException } from "../utils/AppError";
@@ -17,12 +17,7 @@ export const protect = catchAsync(
                 throw new UnauthorizedException("Invalid token payload");
             }
 
-            const user = await User.findById(decoded.id).select("-password");
-            if (!user) {
-                throw new UnauthorizedException("User not found");
-            }
-
-            req.user = user;
+            req.user = { _id: decoded.id } as any;
             next();
         } else {
             throw new UnauthorizedException("Not authorized, no token provided");

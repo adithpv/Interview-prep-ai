@@ -103,6 +103,19 @@ const InterviewPrep = () => {
     }
   };
 
+  const deleteQuestion = async (questionId: string) => {
+    try {
+      const response = await axiosInstance.delete(`/api/questions/${questionId}`);
+      if (response.data) {
+        toast.success("Question deleted");
+        fetchSessionDetailsById();
+      }
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+      console.error("Error deleting question", error);
+    }
+  };
+
   const uploadMoreQuestions = async () => {
     try {
       setIsUpdateLoader(true);
@@ -211,6 +224,9 @@ const InterviewPrep = () => {
                         }
                         onToggleStatus={() =>
                           data?._id && toggleQuestionStatus(data._id, data.status)
+                        }
+                        onDelete={() =>
+                          data?._id && deleteQuestion(data._id)
                         }
                       />
 

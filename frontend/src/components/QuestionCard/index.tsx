@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { LuChevronDown, LuPin, LuDiff, LuSparkles, LuCircleCheck, LuCircle } from "react-icons/lu";
+import { LuChevronDown, LuPin, LuDiff, LuSparkles, LuCircleCheck, LuCircle, LuTrash } from "react-icons/lu";
 import AiResponsePreview from "../AiResponsePreview";
 
 interface QuestionCardProps {
@@ -10,6 +10,7 @@ interface QuestionCardProps {
   onLearnMore: () => void;
   onTogglePin: () => void;
   onToggleStatus?: () => void;
+  onDelete?: () => void;
 }
 
 const QuestionCard: React.FC<QuestionCardProps> = ({
@@ -20,6 +21,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   onLearnMore,
   onTogglePin,
   onToggleStatus,
+  onDelete,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [height, setHeight] = useState(0);
@@ -80,6 +82,15 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
                   <LuPin className="text-xs" />
                 )}
               </button>
+              {onDelete && (
+                <button
+                  className="mr-2 flex cursor-pointer items-center justify-center rounded border border-rose-200 bg-rose-50 px-3 py-1 text-rose-500 hover:bg-rose-100"
+                  onClick={onDelete}
+                  title="Delete Question"
+                >
+                  <LuTrash size={14} />
+                </button>
+              )}
               <button
                 className="mr-2 flex cursor-pointer items-center gap-2 rounded border border-cyan-50 bg-cyan-50 px-3 py-2 text-xs font-medium text-nowrap text-cyan-800 hover:border-cyan-200"
                 onClick={() => {

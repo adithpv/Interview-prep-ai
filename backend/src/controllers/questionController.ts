@@ -10,7 +10,24 @@ import {
     togglePinQuestionService,
     updateQuestionNoteService,
     updateQuestionStatusService,
+    deleteQuestionService,
 } from "../services/questionService";
+
+export const deleteQuestion = catchAsync(
+    async (req: AuthenticatedRequest, res: Response) => {
+        const questionId = req.params.id;
+        const userId = req.user._id;
+
+        assertFieldsExist({ questionId });
+
+        const result = await deleteQuestionService({
+            questionId,
+            userId: userId.toString(),
+        });
+
+        sendResponse({ res, statusCode: HttpStatus.OK, data: result });
+    }
+);
 
 export const addQuestionsToSession = catchAsync(
     async (req: AuthenticatedRequest, res: Response) => {
