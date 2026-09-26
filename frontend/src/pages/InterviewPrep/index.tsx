@@ -197,53 +197,78 @@ const InterviewPrep = () => {
             className={`col-span-12 ${openLearnMoreDrawer ? "md:col-span-7" : "md:col-span-8"}`}
           >
             <AnimatePresence>
-              {sessionData?.questions
-                ?.filter(q => hideMastered ? q.status !== 'mastered' : true)
-                .map((data, idx) => {
-                const key = data?._id || `fallback-${idx}`;
-                const layoutId = `question-${data?._id || idx}`;
+              {(() => {
+                const filteredQuestions = sessionData?.questions?.filter(q => hideMastered ? q.status !== 'mastered' : true) || [];
+                
+                if (filteredQuestions.length === 0) {
+                  return (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 py-12 px-6 text-center"
+                    >
+                      <div className="mb-4 text-4xl">
+                        {sessionData?.questions?.length ? "🎉" : "📝"}
+                      </div>
+                      <h3 className="mb-2 text-lg font-semibold text-gray-800">
+                        {sessionData?.questions?.length ? "All Questions Mastered!" : "No questions in this session yet."}
+                      </h3>
+                      <p className="text-sm text-gray-500 max-w-sm">
+                        {sessionData?.questions?.length 
+                          ? "You've completed all visible questions. Uncheck 'Hide Mastered' to review, or generate more below." 
+                          : "Click 'Load More' below to generate AI interview questions tailored to this role."}
+                      </p>
+                    </motion.div>
+                  );
+                }
 
-                return (
-                  <motion.div
-                    key={key}
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{
-                      duration: 0.4,
-                      type: "spring",
-                      stiffness: 100,
-                      delay: idx * 0.1,
-                      damping: 15,
-                    }}
-                    layout
-                    layoutId={layoutId}
-                  >
-                    <>
-                      <QuestionCard
-                        question={data?.question || ""}
-                        answer={data?.answer || ""}
-                        isPinned={data?.isPinned || false}
-                        status={data?.status}
-                        onLearnMore={() =>
-                          data?.question &&
-                          generateConceptExplanation(data.question)
-                        }
-                        onTogglePin={() =>
-                          data?._id && toggleQuestionPinStatus(data._id)
-                        }
-                        onToggleStatus={() =>
-                          data?._id && toggleQuestionStatus(data._id, data.status)
-                        }
-                        onDelete={() =>
-                          data?._id && deleteQuestion(data._id)
-                        }
-                      />
+                return filteredQuestions.map((data, idx) => {
+                  const key = data?._id || `fallback-${idx}`;
+                  const layoutId = `question-${data?._id || idx}`;
 
-                    </>
-                  </motion.div>
-                );
-              })}
+                  return (
+                    <motion.div
+                      key={key}
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{
+                        duration: 0.4,
+                        type: "spring",
+                        stiffness: 100,
+                        delay: idx * 0.1,
+                        damping: 15,
+                      }}
+                      layout
+                      layoutId={layoutId}
+                    >
+                      <>
+                        <QuestionCard
+                          question={data?.question || ""}
+                          answer={data?.answer || ""}
+                          isPinned={data?.isPinned || false}
+                          status={data?.status}
+                          index={idx + 1}
+                          total={filteredQuestions.length}
+                          onLearnMore={() =>
+                            data?.question &&
+                            generateConceptExplanation(data.question)
+                          }
+                          onTogglePin={() =>
+                            data?._id && toggleQuestionPinStatus(data._id)
+                          }
+                          onToggleStatus={() =>
+                            data?._id && toggleQuestionStatus(data._id, data.status)
+                          }
+                          onDelete={() =>
+                            data?._id && deleteQuestion(data._id)
+                          }
+                        />
+                      </>
+                    </motion.div>
+                  );
+                });
+              })()}
             </AnimatePresence>
 
             {!isLoading && (

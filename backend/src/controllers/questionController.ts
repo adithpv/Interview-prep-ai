@@ -34,9 +34,6 @@ export const addQuestionsToSession = catchAsync(
         const { sessionId, questions } = req.body;
         const userId = req.user._id;
 
-        assertFieldsExist({ sessionId, questions });
-        assertArray(questions, "Questions");
-
         const result = await addQuestionsToSessionService({
             sessionId,
             questions,
@@ -68,8 +65,6 @@ export const updateQuestionNote = catchAsync(
         const { note } = req.body;
         const userId = req.user._id;
 
-        assertFieldsExist({ questionId, note });
-
         const result = await updateQuestionNoteService({
             questionId,
             note,
@@ -85,12 +80,6 @@ export const updateQuestionStatus = catchAsync(
         const questionId = req.params.id;
         const { status } = req.body;
         const userId = req.user._id;
-
-        assertFieldsExist({ questionId, status });
-        
-        if (status !== 'learning' && status !== 'mastered') {
-            throw new BadRequestException("Status must be either 'learning' or 'mastered'");
-        }
 
         const result = await updateQuestionStatusService({
             questionId,

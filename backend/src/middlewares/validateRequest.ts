@@ -18,8 +18,13 @@ export const validateRequest = (schema: ZodSchema) => {
                     message: e.message,
                 }));
                 res.status(HttpStatus.BAD_REQUEST).json({
-                    message: "Validation Failed",
-                    errors: formattedErrors,
+                    success: false,
+                    error: {
+                        code: "VALIDATION_ERROR",
+                        message: "Validation Failed",
+                        details: formattedErrors,
+                    },
+                    requestId: (req as any).requestId,
                 });
                 return;
             }

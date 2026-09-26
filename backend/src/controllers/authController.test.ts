@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { registerUser, loginUser, logoutUser } from './authController';
+import { registerUser, loginUser, logoutUser, refreshTokenController } from './authController';
 import * as authService from '../services/authService';
+import { UserSession } from '../models/userSessionModel';
+import jwt from 'jsonwebtoken';
 
 // Mock env
 vi.mock('../utils/env', () => ({
@@ -126,5 +128,67 @@ describe('Auth Controller', () => {
         }));
         
         expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+
+    it('refreshTokenController should return 401 if no refresh token', async () => {
+        mockReq.cookies = {};
+
+        await refreshTokenController(mockReq, mockRes, mockNext); 
+
+        expect(mockRes.status).toHaveBeenCalledWith(401);
+        expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+            message: 'No refresh token found',
+        }));
+    });
+
+    it('refreshTokenController should rotate tokens successfully', async () => {
+        mockReq.cookies.refreshToken = 'old-refresh';
+        
+        vi.spyOn(jwt, 'verify').mockReturnValue({ id: 'u1' } as any);
+        vi.mocked(authService.hashToken).mockReturnValue('hashed');
+        
+        const mockSession = { deleteOne: vi.fn() };
+        vi.mocked(UserSession.findOne).mockResolvedValue(mockSession as any);
+        
+        vi.mocked(authService.createAuthSession).mockResolvedValue({
+            accessToken: 'new-acc',
+            refreshToken: 'new-ref'
+        });
+
+        await refreshTokenController(mockReq, mockRes, mockNext); 
+
+        expect(UserSession.findOne).toHaveBeenCalledWith({ user: 'u1', refreshTokenHash: 'hashed' });
+        expect(mockSession.deleteOne).toHaveBeenCalled();
+        expect(authService.createAuthSession).toHaveBeenCalledWith('u1', 'test-agent', '127.0.0.1');
+        
+        expect(mockRes.cookie).toHaveBeenCalledWith('accessToken', 'new-acc', expect.any(Object));
+        expect(mockRes.cookie).toHaveBeenCalledWith('refreshToken', 'new-ref', expect.any(Object));
+        expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+
+    it('refreshTokenController should revoke sessions on token reuse', async () => {
+        mockReq.cookies.refreshToken = 'reused-refresh';
+        vi.spyOn(jwt, 'verify').mockReturnValue({ id: 'u1' } as any);
+        vi.mocked(UserSession.findOne).mockResolvedValue(null);
+
+        await refreshTokenController(mockReq, mockRes, mockNext); 
+
+        expect(UserSession.deleteMany).toHaveBeenCalledWith({ user: 'u1' });
+        expect(mockRes.status).toHaveBeenCalledWith(401);
+        expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+            message: 'Invalid refresh token. Sessions revoked.',
+        }));
+    });
+
+    it('refreshTokenController should handle malformed JWT', async () => {
+        mockReq.cookies.refreshToken = 'bad-token';
+        vi.spyOn(jwt, 'verify').mockImplementation(() => { throw new Error('invalid') });
+
+        await refreshTokenController(mockReq, mockRes, mockNext); 
+
+        expect(mockRes.status).toHaveBeenCalledWith(401);
+        expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+            message: 'Invalid refresh token',
+        }));
     });
 });

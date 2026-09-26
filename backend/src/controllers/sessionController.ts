@@ -17,7 +17,6 @@ export const createSession = catchAsync(
         const { role, experience, topicsToFocus, description, questions } =
             req.body;
         const userId = req.user._id;
-        assertFieldsExist({ userId });
 
         const result = await createSessionService({
             role,
@@ -79,8 +78,6 @@ export const updateSession = catchAsync(
         const sessionId = req.params.id;
         const userId = req.user._id;
         const { role, experience, topicsToFocus, description } = req.body;
-
-        assertFieldsExist({ sessionId });
 
         const result = await updateSessionService({
             sessionId,

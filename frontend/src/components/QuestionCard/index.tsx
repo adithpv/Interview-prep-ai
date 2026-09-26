@@ -7,6 +7,8 @@ interface QuestionCardProps {
   answer: string;
   isPinned: boolean;
   status?: 'learning' | 'mastered';
+  index: number;
+  total: number;
   onLearnMore: () => void;
   onTogglePin: () => void;
   onToggleStatus?: () => void;
@@ -18,6 +20,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   answer,
   isPinned,
   status = 'learning',
+  index,
+  total,
   onLearnMore,
   onTogglePin,
   onToggleStatus,
@@ -45,8 +49,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
       <div className={`mb-4 overflow-hidden rounded-lg border px-5 py-4 shadow-xl transition-colors ${status === 'mastered' ? 'border-green-100 bg-green-50/30 shadow-green-100/30' : 'border-gray-100/60 bg-white shadow-gray-100/70'}`}>
         <div className="flex cursor-pointer items-start justify-between">
           <div className="flex items-start gap-3.5">
-            <span className="text-xs leading-tight font-semibold text-gray-400 md:text-[15px]">
-              0
+            <span className="shrink-0 rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-500 md:text-sm">
+              {index} of {total}
             </span>
             <h3
               className={`mr-0 text-xs font-medium md:mr-20 md:text-[14px] ${status === 'mastered' ? 'text-gray-600 line-through decoration-green-300' : 'text-gray-800'}`}

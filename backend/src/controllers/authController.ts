@@ -165,7 +165,7 @@ export const refreshTokenController = catchAsync(
                 statusCode: HttpStatus.OK,
                 message: "Token refreshed",
             });
-        } catch (e) {
+        } catch (e) { console.error("Error in refreshToken:", e);
             return sendResponse({
                 res,
                 statusCode: HttpStatus.UNAUTHORIZED,
@@ -183,7 +183,7 @@ export const logoutUser = catchAsync(async (req: Request, res: Response) => {
             const decoded = jwt.verify(refreshToken, ENV.JWT_REFRESH_SECRET) as { id: string };
             const hashedToken = hashToken(refreshToken);
             await UserSession.deleteOne({ user: decoded.id, refreshTokenHash: hashedToken });
-        } catch (e) {
+        } catch (e) { console.error("Error in refreshToken:", e);
             // ignore if already expired or invalid
         }
     }
