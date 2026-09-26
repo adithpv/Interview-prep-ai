@@ -7,7 +7,8 @@ interface SummaryCardProps {
   role: string;
   topicsToFocus: string;
   experience: string | number;
-  questions: string | number;
+  questions: number;
+  masteredCount?: number;
   description: string;
   lastUpdated: string;
   onSelect: () => void;
@@ -20,11 +21,14 @@ const SummaryCard: FC<SummaryCardProps> = ({
   topicsToFocus,
   experience,
   questions,
+  masteredCount = 0,
   description,
   lastUpdated,
   onSelect,
   onDelete,
 }) => {
+  const masteryPercentage = questions > 0 ? Math.round((masteredCount / questions) * 100) : 0;
+
   return (
     <div
       className="group relative flex cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg"
@@ -63,7 +67,23 @@ const SummaryCard: FC<SummaryCardProps> = ({
             Updated {lastUpdated}
           </span>
         </div>
-        <p className="mt-3 line-clamp-2 text-sm text-gray-600">{description}</p>
+        
+        {questions > 0 && (
+          <div className="mt-4">
+            <div className="flex justify-between text-xs font-medium text-gray-500 mb-1">
+              <span>Mastery Progress</span>
+              <span>{masteryPercentage}%</span>
+            </div>
+            <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
+              <div 
+                className="h-full rounded-full bg-green-500 transition-all duration-500" 
+                style={{ width: `${masteryPercentage}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+
+        <p className="mt-4 line-clamp-2 text-sm text-gray-600">{description}</p>
       </div>
     </div>
   );

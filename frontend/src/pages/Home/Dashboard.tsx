@@ -81,7 +81,8 @@ const Dashboard = () => {
                 role={role}
                 topicsToFocus={topicsToFocus}
                 experience={experience}
-                questions={questions.length || "-"}
+                questions={questions.length || 0}
+                masteredCount={questions.filter(q => (q as any).status === 'mastered').length}
                 description={description}
                 lastUpdated={
                   updatedAt ? moment(updatedAt).format("Do MMM YYYY") : ""
