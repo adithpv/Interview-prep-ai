@@ -27,6 +27,8 @@ const ConceptCacheSchema: Schema<IConceptCache> = new Schema(
 
 // Index question for fast exact matches
 ConceptCacheSchema.index({ question: 1 });
+// Add a TTL index to expire cache after 7 days (604800 seconds)
+ConceptCacheSchema.index({ createdAt: 1 }, { expireAfterSeconds: 604800 });
 
 export const ConceptCache: Model<IConceptCache> =
     mongoose.models.ConceptCache ||

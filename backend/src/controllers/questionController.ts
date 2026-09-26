@@ -4,6 +4,7 @@ import { HttpStatus } from "../utils/httpStatus";
 import { assertFieldsExist, assertArray } from "../utils/appAssert";
 import { sendResponse } from "../utils/responseHandler";
 import { AuthenticatedRequest } from "../types";
+import { BadRequestException } from "../utils/AppError";
 import {
     addQuestionsToSessionService,
     togglePinQuestionService,
@@ -69,6 +70,10 @@ export const updateQuestionStatus = catchAsync(
         const userId = req.user._id;
 
         assertFieldsExist({ questionId, status });
+        
+        if (status !== 'learning' && status !== 'mastered') {
+            throw new BadRequestException("Status must be either 'learning' or 'mastered'");
+        }
 
         const result = await updateQuestionStatusService({
             questionId,

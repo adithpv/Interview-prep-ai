@@ -24,6 +24,7 @@ const InterviewPrep = () => {
   const [explanation, setExplanation] = useState<IAIExplanation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdateLoader, setIsUpdateLoader] = useState(false);
+  const [hideMastered, setHideMastered] = useState(false);
 
   const fetchSessionDetailsById = async () => {
     try {
@@ -156,13 +157,26 @@ const InterviewPrep = () => {
         }
       />
       <div className="container mx-auto px-4 pt-4 pb-4 md:px-0">
-        <h2 className="color-black text-lg font-semibold">Interview Q & A</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="color-black text-lg font-semibold">Interview Q & A</h2>
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
+            <input 
+              type="checkbox" 
+              checked={hideMastered} 
+              onChange={(e) => setHideMastered(e.target.checked)} 
+              className="rounded text-indigo-600 focus:ring-indigo-500"
+            />
+            Hide Mastered
+          </label>
+        </div>
         <div className="mt-5 mb-10 grid grid-cols-12 gap-4">
           <div
             className={`col-span-12 ${openLearnMoreDrawer ? "md:col-span-7" : "md:col-span-8"}`}
           >
             <AnimatePresence>
-              {sessionData?.questions?.map((data, idx) => {
+              {sessionData?.questions
+                ?.filter(q => hideMastered ? q.status !== 'mastered' : true)
+                .map((data, idx) => {
                 const key = data?._id || `fallback-${idx}`;
                 const layoutId = `question-${data?._id || idx}`;
 
@@ -200,28 +214,28 @@ const InterviewPrep = () => {
                         }
                       />
 
-                      {!isLoading &&
-                        sessionData?.questions?.length === idx + 1 && (
-                          <div className="mt-5 flex items-center justify-center">
-                            <button
-                              className="mr-2 flex cursor-pointer items-center gap-3 rounded bg-black px-5 py-2 text-sm font-medium text-nowrap text-white"
-                              disabled={isLoading || isUpdateLoader}
-                              onClick={uploadMoreQuestions}
-                            >
-                              {isUpdateLoader ? (
-                                <SpinnerLoader />
-                              ) : (
-                                <LuListCollapse className="text-lg" />
-                              )}{" "}
-                              Load More
-                            </button>
-                          </div>
-                        )}
                     </>
                   </motion.div>
                 );
               })}
             </AnimatePresence>
+
+            {!isLoading && (
+              <div className="mt-5 flex items-center justify-center">
+                <button
+                  className="mr-2 flex cursor-pointer items-center gap-3 rounded bg-black px-5 py-2 text-sm font-medium text-nowrap text-white"
+                  disabled={isLoading || isUpdateLoader}
+                  onClick={uploadMoreQuestions}
+                >
+                  {isUpdateLoader ? (
+                    <SpinnerLoader />
+                  ) : (
+                    <LuListCollapse className="text-lg" />
+                  )}{" "}
+                  Load More
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div>

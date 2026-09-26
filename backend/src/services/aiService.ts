@@ -65,19 +65,25 @@ export const generateConceptExplanationsService = async (
 
     const cleanText = await aiProvider.generateContent(prompt);
 
+    let parsedData: { title: string; explanation: string };
     try {
         const data = JSON.parse(cleanText);
-        const parsedData = ConceptExplanationSchema.parse(data);
-        
-        // Save stringified parsed data to cache
-        await ConceptCache.create({
-            question: question.trim(),
-            explanation: JSON.stringify(parsedData),
-        });
-
-        return parsedData;
+        parsedData = ConceptExplanationSchema.parse(data);
     } catch (e) {
         console.error("Failed to parse AI response:", e);
         throw new InternalServerErrorException("Invalid response format from AI provider");
     }
+
+    try {
+        // Save stringified parsed data to cache (best effort)
+        await ConceptCache.updateOne(
+            { question: question.trim() },
+            { $set: { explanation: JSON.stringify(parsedData) } },
+            { upsert: true }
+        );
+    } catch (e) {
+        console.error("Failed to write to cache:", e);
+    }
+
+    return parsedData;
 };

@@ -10,7 +10,8 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -48,6 +49,7 @@
     "eslint": "^9.28.0",
     "prettier": "^3.5.3",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^5.0.2"
   }
 }
