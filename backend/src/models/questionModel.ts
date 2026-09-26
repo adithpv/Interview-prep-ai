@@ -7,6 +7,7 @@ export interface IQuestion extends Document {
     answer: string;
     note?: string;
     isPinned: boolean;
+    status: 'learning' | 'mastered';
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -39,6 +40,11 @@ const QuestionSchema: Schema<IQuestion> = new Schema(
         isPinned: {
             type: Boolean,
             default: false,
+        },
+        status: {
+            type: String,
+            enum: ['learning', 'mastered'],
+            default: 'learning',
         },
     },
     {

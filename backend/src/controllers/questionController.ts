@@ -8,6 +8,7 @@ import {
     addQuestionsToSessionService,
     togglePinQuestionService,
     updateQuestionNoteService,
+    updateQuestionStatusService,
 } from "../services/questionService";
 
 export const addQuestionsToSession = catchAsync(
@@ -54,6 +55,24 @@ export const updateQuestionNote = catchAsync(
         const result = await updateQuestionNoteService({
             questionId,
             note,
+            userId: userId.toString(),
+        });
+
+        sendResponse({ res, statusCode: HttpStatus.OK, data: result });
+    }
+);
+
+export const updateQuestionStatus = catchAsync(
+    async (req: AuthenticatedRequest, res: Response) => {
+        const questionId = req.params.id;
+        const { status } = req.body;
+        const userId = req.user._id;
+
+        assertFieldsExist({ questionId, status });
+
+        const result = await updateQuestionStatusService({
+            questionId,
+            status,
             userId: userId.toString(),
         });
 

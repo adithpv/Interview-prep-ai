@@ -92,3 +92,28 @@ export const updateQuestionNoteService = async (
         question,
     };
 };
+
+export const updateQuestionStatusService = async (
+    params: { questionId: string; status: 'learning' | 'mastered'; userId: string }
+): Promise<{
+    message: string;
+    question: any;
+}> => {
+    const { questionId, status, userId } = params;
+
+    const question = await Question.findById(questionId);
+    assertNotFound(question, "Question");
+
+    assertAuth(
+        question.user.toString() === userId.toString(),
+        "Not authorized to update this question"
+    );
+
+    question.status = status;
+    await question.save();
+
+    return {
+        message: "Status updated successfully",
+        question,
+    };
+};

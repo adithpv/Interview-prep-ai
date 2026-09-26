@@ -86,6 +86,22 @@ const InterviewPrep = () => {
     }
   };
 
+  const toggleQuestionStatus = async (questionId: string, currentStatus?: string) => {
+    try {
+      const newStatus = currentStatus === 'mastered' ? 'learning' : 'mastered';
+      const response = await axiosInstance.patch(
+        `/api/questions/${questionId}/status`,
+        { status: newStatus }
+      );
+      if (response.data) {
+        fetchSessionDetailsById();
+      }
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+      console.error("Error toggling status", error);
+    }
+  };
+
   const uploadMoreQuestions = async () => {
     try {
       setIsUpdateLoader(true);
@@ -171,12 +187,16 @@ const InterviewPrep = () => {
                         question={data?.question || ""}
                         answer={data?.answer || ""}
                         isPinned={data?.isPinned || false}
+                        status={data?.status}
                         onLearnMore={() =>
                           data?.question &&
                           generateConceptExplanation(data.question)
                         }
                         onTogglePin={() =>
                           data?._id && toggleQuestionPinStatus(data._id)
+                        }
+                        onToggleStatus={() =>
+                          data?._id && toggleQuestionStatus(data._id, data.status)
                         }
                       />
 

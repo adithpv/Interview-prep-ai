@@ -7,6 +7,7 @@ export interface IQuestion {
   answer: string;
   note?: string;
   isPinned: boolean;
+  status?: 'learning' | 'mastered';
   createdAt?: Date;
   updatedAt?: Date;
 }

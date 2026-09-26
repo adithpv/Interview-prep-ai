@@ -1,21 +1,25 @@
 import { useEffect, useRef, useState } from "react";
-import { LuChevronDown, LuPin, LuDiff, LuSparkles } from "react-icons/lu";
+import { LuChevronDown, LuPin, LuDiff, LuSparkles, LuCircleCheck, LuCircle } from "react-icons/lu";
 import AiResponsePreview from "../AiResponsePreview";
 
 interface QuestionCardProps {
   question: string;
   answer: string;
   isPinned: boolean;
+  status?: 'learning' | 'mastered';
   onLearnMore: () => void;
   onTogglePin: () => void;
+  onToggleStatus?: () => void;
 }
 
 const QuestionCard: React.FC<QuestionCardProps> = ({
   question,
   answer,
   isPinned,
+  status = 'learning',
   onLearnMore,
   onTogglePin,
+  onToggleStatus,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [height, setHeight] = useState(0);
@@ -36,14 +40,14 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 
   return (
     <>
-      <div className="mb-4 overflow-hidden rounded-lg border border-gray-100/60 bg-white px-5 py-4 shadow-xl shadow-gray-100/70">
+      <div className={`mb-4 overflow-hidden rounded-lg border px-5 py-4 shadow-xl transition-colors ${status === 'mastered' ? 'border-green-100 bg-green-50/30 shadow-green-100/30' : 'border-gray-100/60 bg-white shadow-gray-100/70'}`}>
         <div className="flex cursor-pointer items-start justify-between">
           <div className="flex items-start gap-3.5">
             <span className="text-xs leading-tight font-semibold text-gray-400 md:text-[15px]">
               0
             </span>
             <h3
-              className="mr-0 text-xs font-medium text-gray-800 md:mr-20 md:text-[14px]"
+              className={`mr-0 text-xs font-medium md:mr-20 md:text-[14px] ${status === 'mastered' ? 'text-gray-600 line-through decoration-green-300' : 'text-gray-800'}`}
               onClick={toggleExpand}
             >
               {question}
@@ -53,6 +57,19 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             <div
               className={`flex ${isExpanded ? "md:flex" : "group-hover:flex md:hidden"}`}
             >
+              {onToggleStatus && (
+                <button
+                  className={`mr-2 flex cursor-pointer items-center gap-2 rounded border px-3 py-1 text-xs font-medium text-nowrap transition-colors ${status === 'mastered' ? 'border-green-500 bg-green-50 text-green-700 hover:bg-green-100' : 'border-gray-200 bg-white text-gray-500 hover:border-green-500 hover:text-green-600'}`}
+                  onClick={onToggleStatus}
+                  title={status === 'mastered' ? "Mark as Learning" : "Mark as Mastered"}
+                >
+                  {status === 'mastered' ? (
+                    <><LuCircleCheck className="text-xs" /><span className="hidden md:block">Mastered</span></>
+                  ) : (
+                    <><LuCircle className="text-xs" /><span className="hidden md:block">Mark Mastered</span></>
+                  )}
+                </button>
+              )}
               <button
                 className="hover:border-indigo-20 mr-2 flex cursor-pointer items-center gap-2 rounded border border-indigo-500 bg-indigo-50 px-3 py-1 text-xs font-medium text-nowrap text-indigo-800"
                 onClick={onTogglePin}
