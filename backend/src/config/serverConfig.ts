@@ -15,7 +15,7 @@ export const corsConfig = cors({
             callback(new Error(`CORS policy: origin ${origin} not allowed`));
         }
     },
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
     credentials: true,
 });

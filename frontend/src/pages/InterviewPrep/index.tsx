@@ -25,7 +25,8 @@ const InterviewPrep = () => {
   const [explanation, setExplanation] = useState<IAIExplanation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdateLoader, setIsUpdateLoader] = useState(false);
-  const [hideMastered, setHideMastered] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all"|"pinned"|"learning"|"mastered">("all");
+  
 
   const fetchSessionDetailsById = async () => {
     try {
@@ -93,7 +94,7 @@ const InterviewPrep = () => {
     if (!window.confirm("Reset all questions in this session back to 'Learning'? Your notes and pinned questions will remain intact.")) return;
     
     try {
-      const response = await axiosInstance.post(`/api/sessions/${id}/reset-progress`);
+      const response = await axiosInstance.post(`/api/sessions/${sessionId}/reset-progress`);
       if (response.data) {
         toast.success("Session progress reset successfully!");
         fetchSessionDetailsById();
@@ -164,13 +165,21 @@ const InterviewPrep = () => {
     }
   };
 
-  useEffect(() => {
+  
+  
+useEffect(() => {
     if (sessionId) {
       fetchSessionDetailsById();
     }
     return () => {};
   }, [sessionId]);
 
+  const totalQuestions = sessionData?.questions?.length || 0;
+  const masteredQuestions = sessionData?.questions?.filter((q: any) => q.status === "mastered").length || 0;
+  const pinnedQuestions = sessionData?.questions?.filter((q: any) => q.isPinned).length || 0;
+  const learningQuestions = totalQuestions - masteredQuestions;
+  const masteryPercentage = totalQuestions > 0 ? Math.round((masteredQuestions / totalQuestions) * 100) : 0;
+  
   return (
     <DashboardLayout>
       <div className="container mx-auto px-4 pt-3 md:px-0">
@@ -195,25 +204,66 @@ const InterviewPrep = () => {
         }
       />
       <div className="container mx-auto px-4 pt-4 pb-4 md:px-0">
-        <div className="flex items-center justify-between">
-          <h2 className="color-black text-lg font-semibold">Interview Q & A</h2>
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
-            <input 
-              type="checkbox" 
-              checked={hideMastered} 
-              onChange={(e) => setHideMastered(e.target.checked)} 
-              className="rounded text-indigo-600 focus:ring-indigo-500"
-            />
-            Hide Mastered
-          </label>
+        <div className="mb-6 rounded-xl bg-white p-6 shadow-sm border border-gray-100">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Interactive Study Hub</h2>
+              <p className="text-sm text-gray-500 mt-1">Review questions and track your readiness.</p>
+            </div>
+            {totalQuestions > 0 && (
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col items-end">
+                  <span className="text-sm font-medium text-gray-700">Mastery: {masteryPercentage}%</span>
+                  <div className="h-2 w-32 overflow-hidden rounded-full bg-gray-100 mt-1">
+                    <div 
+                      className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                      style={{ width: `${masteryPercentage}%` }}
+                    />
+                  </div>
+                </div>
+                {masteryPercentage === 100 && (
+                  <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                    🎉 Ready!
+                  </span>
+                )}
+                {masteryPercentage > 0 && (
+                  <button
+                    onClick={resetSessionProgress}
+                    className="rounded-lg bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                  >
+                    🔄 Reset
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           
-          {(sessionData?.questions?.some(q => q.status === 'mastered')) && (
-            <button
-              onClick={resetSessionProgress}
-              className="ml-4 flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800"
-            >
-              🔄 Reset Progress
-            </button>
+          {totalQuestions > 0 && (
+            <div className="mt-6 flex flex-wrap gap-2 border-t border-gray-100 pt-4">
+              {[
+                { id: 'all', label: 'All', count: totalQuestions },
+                { id: 'pinned', label: 'Pinned ⭐', count: pinnedQuestions },
+                { id: 'learning', label: 'Learning 📖', count: learningQuestions },
+                { id: 'mastered', label: 'Mastered ✅', count: masteredQuestions }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    activeTab === tab.id 
+                      ? 'bg-indigo-600 text-white shadow-sm' 
+                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {tab.label}
+                  <span className={`rounded-full px-2 py-0.5 text-xs ${
+                    activeTab === tab.id ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}>
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
         <div className="mt-5 mb-10 grid grid-cols-12 gap-4">
@@ -222,7 +272,15 @@ const InterviewPrep = () => {
           >
             <AnimatePresence>
               {(() => {
-                const filteredQuestions = sessionData?.questions?.filter(q => hideMastered ? q.status !== 'mastered' : true) || [];
+                const filteredQuestions = sessionData?.questions?.filter((q: any) => {
+    if (activeTab === "pinned") return q.isPinned;
+    if (activeTab === "learning") return q.status !== "mastered";
+    if (activeTab === "mastered") return q.status === "mastered";
+    return true; // "all"
+  }) || [];
+
+  
+
                 
                 if (filteredQuestions.length === 0) {
                   return (
@@ -235,13 +293,17 @@ const InterviewPrep = () => {
                         {sessionData?.questions?.length ? "🎉" : "📝"}
                       </div>
                       <h3 className="mb-2 text-lg font-semibold text-gray-800">
-                        {sessionData?.questions?.length ? "All Questions Mastered!" : "No questions in this session yet."}
+                        {totalQuestions === 0 ? "No questions in this session yet." :
+                         activeTab === 'pinned' ? "No pinned questions." :
+                         activeTab === 'mastered' ? "No mastered questions yet." :
+                         "All questions mastered!"}
                       </h3>
-                      <p className="text-sm text-gray-500 max-w-sm">
-                        {sessionData?.questions?.length 
-                          ? <div><p className="mb-4">You've completed all visible questions. You can uncheck 'Hide Mastered' to review, generate more questions, or restart the session.</p><button onClick={resetSessionProgress} className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">🔄 Reset Progress & Practice Again</button></div> 
-                          : "Click 'Load More' below to generate AI interview questions tailored to this role."}
-                      </p>
+                      <div className="text-sm text-gray-500 max-w-sm">
+                        {totalQuestions === 0 ? "Click 'Load More' below to generate AI interview questions tailored to this role." :
+                         activeTab === 'pinned' ? "Click the pin icon on any question to bookmark it for focused review." :
+                         activeTab === 'mastered' ? "Mark questions as mastered as you practice to track your readiness." :
+                         <div><p className="mb-4">🎉 You've mastered all questions in this session! Load more questions or reset to practice again.</p><button onClick={resetSessionProgress} className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">🔄 Reset Progress & Practice Again</button></div>}
+                      </div>
                     </motion.div>
                   );
                 }

@@ -14,7 +14,13 @@ const handleCastErrorDB = (err: any): AppError => {
 };
 
 const handleDuplicateFieldsDB = (err: any): AppError => {
-    const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+    let value = "unknown";
+    if (err.errmsg) {
+        const match = err.errmsg.match(/(["'])(\\?.)*?\1/);
+        value = match ? match[0] : value;
+    } else if (err.keyValue) {
+        value = JSON.stringify(err.keyValue);
+    }
     const message = `Duplicate field value: ${value}. Please use another value!`;
     return new BadRequestException(message);
 };
@@ -31,6 +37,12 @@ const handleJWTError = (): AppError =>
 const handleJWTExpiredError = (): AppError =>
     new UnauthorizedException("Your token has expired! Please log in again.");
 
+const handleCSRFError = (): AppError =>
+    new ForbiddenException("Invalid CSRF Token.");
+
+const handleMulterError = (err: any): AppError => 
+    new BadRequestException(err.message);
+
 const sendErrorDev = (err: AppError, req: Request, res: Response) => {
     res.status(err.statusCode).json({
         success: false,
@@ -45,7 +57,6 @@ const sendErrorDev = (err: AppError, req: Request, res: Response) => {
 };
 
 const sendErrorProd = (err: AppError, req: Request, res: Response) => {
-    // Operational, trusted error: send message to client
     if (err.isOperational) {
         res.status(err.statusCode).json({
             success: false,
@@ -55,12 +66,8 @@ const sendErrorProd = (err: AppError, req: Request, res: Response) => {
             },
             requestId: (req as any).requestId,
         });
-    }
-    // Programming or other unknown error: don't leak error details
-    else {
-        // 1) Log error
+    } else {
         console.error("ERROR 💥", err);
-        // 2) Send generic message
         res.status(500).json({
             success: false,
             error: {
@@ -72,34 +79,32 @@ const sendErrorProd = (err: AppError, req: Request, res: Response) => {
     }
 };
 
-const handleCSRFError = (): AppError =>
-    new ForbiddenException("Invalid CSRF Token.");
-
 export const globalErrorHandler = (
     err: any,
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
-    err.statusCode = err.statusCode || 500;
-    err.status = err.status || "error";
+    let error = Object.assign(err, {
+        message: err.message,
+        name: err.name,
+        code: err.code
+    });
+
+    if (error.name === "CastError") error = handleCastErrorDB(error);
+    if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+    if (error.name === "ValidationError") error = handleValidationErrorDB(error);
+    if (error.name === "JsonWebTokenError") error = handleJWTError();
+    if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
+    if (error.code === "EBADCSRFTOKEN") error = handleCSRFError();
+    if (error.name === "MulterError") error = handleMulterError(error);
+
+    error.statusCode = error.statusCode || 500;
+    error.status = error.status || "error";
 
     if (process.env.NODE_ENV === "development") {
-        sendErrorDev(err, req, res);
-    } else if (process.env.NODE_ENV === "production") {
-        let error = { ...err };
-        error.message = err.message;
-        error.name = err.name;
-        error.code = err.code;
-
-        if (error.name === "CastError") error = handleCastErrorDB(error);
-        if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-        if (error.name === "ValidationError")
-            error = handleValidationErrorDB(error);
-        if (error.name === "JsonWebTokenError") error = handleJWTError();
-        if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
-        if (error.code === "EBADCSRFTOKEN") error = handleCSRFError();
-
+        sendErrorDev(error, req, res);
+    } else {
         sendErrorProd(error, req, res);
     }
 };
