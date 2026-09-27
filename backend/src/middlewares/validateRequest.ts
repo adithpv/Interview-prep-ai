@@ -5,7 +5,7 @@ import { HttpStatus } from "../utils/httpStatus";
 export const validateRequest = (schema: ZodSchema) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const parsed = await schema.parseAsync({
+            const parsed: any = await schema.parseAsync({
                 body: req.body,
                 query: req.query,
                 params: req.params,

@@ -4,12 +4,12 @@ type AsyncFunction<T extends Request = Request> = (
     req: T,
     res: Response,
     next: NextFunction
-) => Promise<unknown>;
+) => Promise<any>;
 
 export const catchAsync = <T extends Request = Request>(
     fn: AsyncFunction<T>
 ) => {
-    return (req: T, res: Response, next: NextFunction) => {
-        return fn(req, res, next).catch(next);
+    return (req: T, res: Response, next: NextFunction): Promise<void> => {
+        return Promise.resolve(fn(req, res, next)).catch(next) as Promise<void>;
     };
 };
